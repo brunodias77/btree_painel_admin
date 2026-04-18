@@ -13,9 +13,11 @@ import {
   RefreshTokenResponse,
   RegisterRequest,
   RegisterResponse,
+  SetupTwoFactorResponse,
   SocialLoginRequest,
   SocialLoginResponse,
   User,
+  VerifyTwoFactorResponse,
 } from '../models/auth.model';
 
 const STORAGE_KEYS = {
@@ -106,6 +108,63 @@ export class AuthService {
     } catch (err: unknown) {
       const { message } = extractApiError(err);
       this._error.set(message ?? 'Erro ao entrar com provedor social. Tente novamente.');
+      throw err;
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  async verifyTwoFactor(transactionId: string, code: string): Promise<void> {
+    this._loading.set(true);
+    this._error.set(null);
+    try {
+      const res = await firstValueFrom(
+        this.http.post<VerifyTwoFactorResponse>(
+          `${environment.apiBaseUrl}/v1/auth/2fa/verify`,
+          { transactionId, code },
+        ),
+      );
+      this.persistSession(res.accessToken, res.refreshToken, res.accessTokenExpiresAt, {
+        userId: res.userId,
+        username: res.username,
+        email: res.email,
+      });
+    } catch (err: unknown) {
+      this._error.set(extractTwoFactorError(err));
+      throw err;
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  async setupTwoFactor(): Promise<SetupTwoFactorResponse> {
+    this._loading.set(true);
+    this._error.set(null);
+    try {
+      return await firstValueFrom(
+        this.http.post<SetupTwoFactorResponse>(`${environment.apiBaseUrl}/v1/auth/2fa/setup`, {}),
+      );
+    } catch (err: unknown) {
+      const { message } = extractApiError(err);
+      this._error.set(message ?? 'Erro ao iniciar configuração. Tente novamente.');
+      throw err;
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  async enableTwoFactor(setupTokenId: string, code: string): Promise<void> {
+    this._loading.set(true);
+    this._error.set(null);
+    try {
+      await firstValueFrom(
+        this.http.post<void>(`${environment.apiBaseUrl}/v1/auth/2fa/enable`, {
+          setup_token_id: setupTokenId,
+          code,
+        }),
+      );
+    } catch (err: unknown) {
+      this._error.set(extractTwoFactorError(err));
       throw err;
     } finally {
       this._loading.set(false);
@@ -226,6 +285,20 @@ export class AuthService {
       return null;
     }
   }
+}
+
+function extractTwoFactorError(err: unknown): string {
+  if (err && typeof err === 'object' && 'status' in err) {
+    const status = (err as { status: number }).status;
+    if (status === 401) return 'Código inválido, transação expirada ou conta bloqueada. Tente novamente.';
+    if (status === 403) return 'Conta desativada. Entre em contato com o suporte.';
+    if (status === 422) {
+      const body = (err as { error?: { message?: string } }).error;
+      if (body?.message) return body.message;
+      return 'Token de configuração expirado ou inválido.';
+    }
+  }
+  return 'Erro ao verificar código. Tente novamente.';
 }
 
 function extractApiError(err: unknown): { message: string | null; errors: string[] } {

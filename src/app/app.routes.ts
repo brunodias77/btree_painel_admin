@@ -9,6 +9,11 @@ export const routes: Routes = [
       import('./features/auth/login/login-page/login-page').then(m => m.LoginPage),
   },
   {
+    path: 'login/2fa',
+    loadComponent: () =>
+      import('./features/auth/two-factor-verify/two-factor-verify-page/two-factor-verify-page').then(m => m.TwoFactorVerifyPage),
+  },
+  {
     path: 'register',
     loadComponent: () =>
       import('./features/auth/register/register-page/register-page').then(m => m.RegisterPage),
@@ -33,6 +38,12 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () =>
       import('./features/dashboard/dashboard-page/dashboard-page').then(m => m.DashboardPage),
+  },
+  {
+    path: 'settings/two-factor',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/settings/two-factor-setup/two-factor-setup-page/two-factor-setup-page').then(m => m.TwoFactorSetupPage),
   },
   { path: '**', redirectTo: '/login' },
 ];

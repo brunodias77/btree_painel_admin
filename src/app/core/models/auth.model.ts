@@ -76,3 +76,18 @@ export interface ApiError {
   message: string;
   errors: string[] | null;
 }
+
+export interface VerifyTwoFactorResponse {
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresAt: string;
+  userId: string;
+  username: string;
+  email: string;
+}
+
+export interface SetupTwoFactorResponse {
+  setup_token_id: string;
+  secret: string;
+  qr_code_uri: string;
+}

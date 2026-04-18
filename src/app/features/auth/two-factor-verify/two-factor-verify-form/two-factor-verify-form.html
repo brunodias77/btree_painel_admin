@@ -1,0 +1,78 @@
+<!-- Transação inválida ou expirada (acesso direto à URL sem transactionId) -->
+@if (missingTransaction()) {
+  <div
+    class="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg px-4 py-4 mb-6"
+    role="alert"
+  >
+    <svg class="w-5 h-5 mt-0.5 shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+    </svg>
+    <div>
+      <p class="font-medium">Link inválido</p>
+      <p class="mt-0.5 text-amber-700">
+        Esta página requer uma transação de login ativa.
+        Faça login novamente para continuar.
+      </p>
+    </div>
+  </div>
+
+  <p class="text-center text-sm text-zinc-500">
+    <a routerLink="/login" class="font-medium text-zinc-900 hover:underline">Voltar para o login</a>
+  </p>
+
+} @else {
+
+  @if (serverError()) {
+    <div
+      class="flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 mb-6"
+      role="alert"
+    >
+      <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      </svg>
+      <span>{{ serverError() }}</span>
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-5">
+
+    <div>
+      <label for="code" class="block text-sm font-medium text-zinc-700 mb-1.5">
+        Código do autenticador
+      </label>
+      <input
+        formControlName="code"
+        id="code"
+        type="text"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        maxlength="6"
+        placeholder="000000"
+        [attr.aria-invalid]="!!codeError()"
+        class="w-full text-center text-2xl font-mono tracking-[0.4em] border rounded-lg px-4 py-3 outline-none transition
+               focus:ring-2 focus:ring-zinc-900 focus:border-transparent
+               disabled:opacity-50 disabled:cursor-not-allowed"
+        [class.border-red-400]="!!codeError()"
+        [class.bg-red-50]="!!codeError()"
+        [class.border-zinc-300]="!codeError()"
+        [class.bg-white]="!codeError()"
+      />
+      @if (codeError()) {
+        <p class="mt-1.5 text-xs text-red-600" role="alert">{{ codeError() }}</p>
+      }
+    </div>
+
+    <app-button type="submit" [loading]="loading()" [block]="true">
+      {{ loading() ? 'Verificando...' : 'Verificar código' }}
+    </app-button>
+
+  </form>
+
+  <p class="mt-6 text-center text-sm text-zinc-500">
+    Sem acesso ao autenticador?
+    <a routerLink="/login" class="font-medium text-zinc-900 hover:underline">Voltar para o login</a>
+  </p>
+
+}
