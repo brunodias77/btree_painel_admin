@@ -5,6 +5,8 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   ApiError,
+  ConfirmPasswordResetRequest,
+  ForgotPasswordRequest,
   LoginRequest,
   LoginResponse,
   LogoutRequest,
@@ -86,6 +88,18 @@ export class AuthService {
   verifyEmail(token: string): Promise<void> {
     return firstValueFrom(
       this.http.post<void>(`${environment.apiBaseUrl}/v1/auth/verify-email`, { token }),
+    );
+  }
+
+  forgotPassword(data: ForgotPasswordRequest): Promise<void> {
+    return firstValueFrom(
+      this.http.post<void>(`${environment.apiBaseUrl}/v1/auth/password/forgot`, data),
+    );
+  }
+
+  resetPassword(data: ConfirmPasswordResetRequest): Promise<void> {
+    return firstValueFrom(
+      this.http.post<void>(`${environment.apiBaseUrl}/v1/auth/password/reset`, data),
     );
   }
 

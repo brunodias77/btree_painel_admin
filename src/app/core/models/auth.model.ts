@@ -46,6 +46,15 @@ export interface LogoutRequest {
   refreshToken: string;
 }
 
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ConfirmPasswordResetRequest {
+  token: string;
+  newPassword: string;
+}
+
 export interface ApiError {
   status: number;
   error: string;

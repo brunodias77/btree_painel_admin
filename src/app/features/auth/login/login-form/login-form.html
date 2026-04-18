@@ -21,15 +21,22 @@
     [error]="identifierError()"
   />
 
-  <app-input
-    formControlName="password"
-    id="password"
-    type="password"
-    label="Senha"
-    placeholder="••••••••"
-    [showPasswordToggle]="true"
-    [error]="passwordError()"
-  />
+  <div>
+    <app-input
+      formControlName="password"
+      id="password"
+      type="password"
+      label="Senha"
+      placeholder="••••••••"
+      [showPasswordToggle]="true"
+      [error]="passwordError()"
+    />
+    <div class="mt-2 text-right">
+      <a routerLink="/forgot-password" class="text-xs text-zinc-500 hover:text-zinc-900 hover:underline">
+        Esqueci minha senha
+      </a>
+    </div>
+  </div>
 
   <app-button type="submit" [loading]="loading()" [block]="true">
     {{ loading() ? 'Entrando...' : 'Entrar' }}
