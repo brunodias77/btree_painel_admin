@@ -8,9 +8,22 @@ function addBearer(req: import('@angular/common/http').HttpRequest<unknown>, tok
   return req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
 }
 
+// Public auth endpoints that must NOT carry a Bearer token.
+// /2fa/setup and /2fa/enable are intentionally excluded: they require JWT.
+const PUBLIC_AUTH_PATTERNS = [
+  '/v1/auth/login',
+  '/v1/auth/register',
+  '/v1/auth/refresh',
+  '/v1/auth/logout',
+  '/v1/auth/verify-email',
+  '/v1/auth/password/',
+  '/v1/auth/social/',
+  '/v1/auth/2fa/verify',
+];
+
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  // Never intercept auth endpoints — avoids refresh loops
-  if (req.url.includes('/v1/auth/')) return next(req);
+  // Skip token injection for public auth endpoints — avoids refresh loops
+  if (PUBLIC_AUTH_PATTERNS.some(p => req.url.includes(p))) return next(req);
 
   const auth = inject(AuthService);
 
