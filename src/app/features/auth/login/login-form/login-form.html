@@ -44,6 +44,32 @@
 
 </form>
 
+@if (googleClientId) {
+  <div class="relative my-6">
+    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+      <div class="w-full border-t border-zinc-200"></div>
+    </div>
+    <div class="relative flex justify-center text-xs uppercase">
+      <span class="bg-white px-3 text-zinc-400 tracking-wide">ou continue com</span>
+    </div>
+  </div>
+
+  <div #googleButtonContainer class="flex justify-center w-full min-h-[44px]"></div>
+
+  @if (socialError()) {
+    <div
+      class="flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 mt-3"
+      role="alert"
+    >
+      <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+      </svg>
+      <span>{{ socialError() }}</span>
+    </div>
+  }
+}
+
 <p class="mt-6 text-center text-sm text-zinc-500">
   Não tem uma conta?
   <a routerLink="/register" class="font-medium text-zinc-900 hover:underline">Criar conta</a>

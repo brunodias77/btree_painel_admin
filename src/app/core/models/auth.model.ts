@@ -55,6 +55,21 @@ export interface ConfirmPasswordResetRequest {
   newPassword: string;
 }
 
+export interface SocialLoginRequest {
+  token: string;
+}
+
+// Backend serializes this response with snake_case via @JsonProperty
+export interface SocialLoginResponse {
+  access_token: string;
+  refresh_token: string;
+  access_token_expires_at: string;
+  user_id: string;
+  username: string;
+  email: string;
+  roles: string[];
+}
+
 export interface ApiError {
   status: number;
   error: string;

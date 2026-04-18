@@ -13,6 +13,8 @@ import {
   RefreshTokenResponse,
   RegisterRequest,
   RegisterResponse,
+  SocialLoginRequest,
+  SocialLoginResponse,
   User,
 } from '../models/auth.model';
 
@@ -79,6 +81,31 @@ export class AuthService {
       const { message, errors } = extractApiError(err);
       this._error.set(message ?? 'Erro ao criar conta. Tente novamente.');
       this._serverErrors.set(errors);
+      throw err;
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  async socialLogin(provider: string, token: string): Promise<void> {
+    this._loading.set(true);
+    this._error.set(null);
+    this._serverErrors.set([]);
+    try {
+      const res = await firstValueFrom(
+        this.http.post<SocialLoginResponse>(
+          `${environment.apiBaseUrl}/v1/auth/social/${provider}`,
+          { token } satisfies SocialLoginRequest,
+        ),
+      );
+      this.persistSession(res.access_token, res.refresh_token, res.access_token_expires_at, {
+        userId: res.user_id,
+        username: res.username,
+        email: res.email,
+      });
+    } catch (err: unknown) {
+      const { message } = extractApiError(err);
+      this._error.set(message ?? 'Erro ao entrar com provedor social. Tente novamente.');
       throw err;
     } finally {
       this._loading.set(false);

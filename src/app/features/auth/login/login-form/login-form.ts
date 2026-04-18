@@ -1,17 +1,22 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  NgZone,
+  afterNextRender,
   computed,
   inject,
   signal,
+  viewChild,
+  ElementRef,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
+import { GoogleAuthService } from '../../../../core/services/google-auth.service';
 import { Button } from '../../../../shared/components/button/button';
 import { Input } from '../../../../shared/components/input/input';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-login-form',
@@ -20,12 +25,16 @@ import { Input } from '../../../../shared/components/input/input';
   templateUrl: './login-form.html',
 })
 export class LoginForm {
-  private readonly fb          = inject(FormBuilder);
-  private readonly authService = inject(AuthService);
-  private readonly router      = inject(Router);
+  private readonly fb                = inject(FormBuilder);
+  private readonly authService       = inject(AuthService);
+  private readonly googleAuthService = inject(GoogleAuthService);
+  private readonly router            = inject(Router);
+  private readonly ngZone            = inject(NgZone);
 
-  protected readonly loading     = this.authService.loading;
-  protected readonly serverError = this.authService.error;
+  protected readonly loading      = this.authService.loading;
+  protected readonly serverError  = this.authService.error;
+  protected readonly socialError  = signal<string | null>(null);
+  protected readonly googleClientId = environment.googleClientId;
 
   protected readonly form = this.fb.group({
     identifier: ['', [Validators.required, Validators.maxLength(256)]],
@@ -34,6 +43,9 @@ export class LoginForm {
 
   private readonly _submitted = signal(false);
   private readonly _formValue = toSignal(this.form.valueChanges, { initialValue: this.form.value });
+
+  private readonly googleButtonContainer =
+    viewChild<ElementRef<HTMLDivElement>>('googleButtonContainer');
 
   protected readonly identifierError = computed(() => {
     this._formValue();
@@ -50,6 +62,30 @@ export class LoginForm {
     if (!this._submitted()) return null;
     return this.form.get('password')!.invalid ? 'Informe sua senha.' : null;
   });
+
+  constructor() {
+    afterNextRender(() => {
+      const el = this.googleButtonContainer()?.nativeElement;
+      if (!el || !environment.googleClientId) return;
+      this.googleAuthService
+        .renderSignInButton(el, environment.googleClientId, (token) => {
+          this.ngZone.run(() => this.handleGoogleToken(token));
+        })
+        .catch(() => {
+          this.socialError.set('Não foi possível carregar o login com Google.');
+        });
+    });
+  }
+
+  private async handleGoogleToken(idToken: string): Promise<void> {
+    this.socialError.set(null);
+    try {
+      await this.authService.socialLogin('google', idToken);
+      this.router.navigate(['/dashboard']);
+    } catch {
+      this.socialError.set(this.authService.error() ?? 'Erro ao entrar com Google. Tente novamente.');
+    }
+  }
 
   protected async submit(): Promise<void> {
     this._submitted.set(true);
