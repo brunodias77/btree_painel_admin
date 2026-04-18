@@ -10,6 +10,8 @@ import { LoginForm } from '../login-form/login-form';
 export class LoginPage {
   // Bound automatically from ?registered=1 via withComponentInputBinding()
   readonly registered = input<string>('');
+  // Bound automatically from ?reset=1 via withComponentInputBinding()
+  readonly reset = input<string>('');
 
   protected readonly currentYear = new Date().getFullYear();
 }
