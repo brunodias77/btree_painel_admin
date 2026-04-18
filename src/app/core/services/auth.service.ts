@@ -7,6 +7,8 @@ import {
   ApiError,
   LoginRequest,
   LoginResponse,
+  LogoutRequest,
+  RefreshTokenResponse,
   RegisterRequest,
   RegisterResponse,
   User,
@@ -21,7 +23,7 @@ const STORAGE_KEYS = {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly http = inject(HttpClient);
+  private readonly http   = inject(HttpClient);
   private readonly router = inject(Router);
 
   private readonly _loading      = signal(false);
@@ -35,6 +37,9 @@ export class AuthService {
   readonly user         = this._user.asReadonly();
   readonly isAuthenticated = computed(() => !!this.getAccessToken() && this._user() !== null);
 
+  // Deduplicates concurrent refresh calls — all callers share the same in-flight promise
+  private _refreshPromise: Promise<string> | null = null;
+
   async login(credentials: LoginRequest): Promise<LoginResponse> {
     this._loading.set(true);
     this._error.set(null);
@@ -44,12 +49,11 @@ export class AuthService {
         this.http.post<LoginResponse>(`${environment.apiBaseUrl}/v1/auth/login`, credentials),
       );
       if (!res.requiresTwoFactor) {
-        localStorage.setItem(STORAGE_KEYS.accessToken, res.accessToken);
-        localStorage.setItem(STORAGE_KEYS.refreshToken, res.refreshToken);
-        localStorage.setItem(STORAGE_KEYS.accessTokenExpiresAt, res.accessTokenExpiresAt);
-        const user: User = { userId: res.userId, username: res.username, email: res.email };
-        localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(user));
-        this._user.set(user);
+        this.persistSession(res.accessToken, res.refreshToken, res.accessTokenExpiresAt, {
+          userId: res.userId,
+          username: res.username,
+          email: res.email,
+        });
       }
       return res;
     } catch (err: unknown) {
@@ -85,17 +89,92 @@ export class AuthService {
     );
   }
 
+  /**
+   * Troca o refresh token por um novo par de tokens.
+   * Chamadas concorrentes recebem a mesma Promise — apenas um request vai ao servidor.
+   */
+  refreshTokens(): Promise<string> {
+    this._refreshPromise ??= this.executeRefresh().finally(() => {
+      this._refreshPromise = null;
+    });
+    return this._refreshPromise;
+  }
+
   logout(): void {
+    const refreshToken = this.getRefreshToken();
+
+    // Clear local state immediately — don't block on server response
     localStorage.removeItem(STORAGE_KEYS.accessToken);
     localStorage.removeItem(STORAGE_KEYS.refreshToken);
     localStorage.removeItem(STORAGE_KEYS.accessTokenExpiresAt);
     localStorage.removeItem(STORAGE_KEYS.user);
     this._user.set(null);
+
+    // Best-effort: revoke session server-side; ignore failures
+    if (refreshToken) {
+      firstValueFrom(
+        this.http.post<void>(
+          `${environment.apiBaseUrl}/v1/auth/logout`,
+          { refreshToken } satisfies LogoutRequest,
+        ),
+      ).catch(() => undefined);
+    }
+
     this.router.navigate(['/login']);
   }
 
   getAccessToken(): string | null {
     return localStorage.getItem(STORAGE_KEYS.accessToken);
+  }
+
+  getRefreshToken(): string | null {
+    return localStorage.getItem(STORAGE_KEYS.refreshToken);
+  }
+
+  isAccessTokenExpired(): boolean {
+    const expiresAt = localStorage.getItem(STORAGE_KEYS.accessTokenExpiresAt);
+    if (!expiresAt) return false;
+    // 30 s de buffer para compensar clock skew entre cliente e servidor
+    return new Date(expiresAt).getTime() - 30_000 <= Date.now();
+  }
+
+  private async executeRefresh(): Promise<string> {
+    const storedRefreshToken = this.getRefreshToken();
+    if (!storedRefreshToken) {
+      this.logout();
+      throw new Error('Sessão expirada. Faça login novamente.');
+    }
+
+    try {
+      const res = await firstValueFrom(
+        this.http.post<RefreshTokenResponse>(
+          `${environment.apiBaseUrl}/v1/auth/refresh`,
+          { refreshToken: storedRefreshToken },
+        ),
+      );
+      this.persistSession(res.accessToken, res.refreshToken, res.accessTokenExpiresAt, {
+        userId: res.userId,
+        username: res.username,
+        email: res.email,
+      });
+      return res.accessToken;
+    } catch {
+      this.logout();
+      throw new Error('Sessão expirada. Faça login novamente.');
+    }
+  }
+
+  private persistSession(
+    accessToken: string,
+    refreshToken: string,
+    expiresAt: string,
+    user: User,
+  ): void {
+    localStorage.setItem(STORAGE_KEYS.accessToken, accessToken);
+    localStorage.setItem(STORAGE_KEYS.refreshToken, refreshToken);
+    localStorage.setItem(STORAGE_KEYS.accessTokenExpiresAt, expiresAt);
+    localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(user));
+    this._user.set(user);
   }
 
   private restoreUser(): User | null {
@@ -114,7 +193,6 @@ function extractApiError(err: unknown): { message: string | null; errors: string
     if (body && typeof body === 'object') {
       const apiError = body as Partial<ApiError>;
       const errors = Array.isArray(apiError.errors) ? apiError.errors : [];
-      // HTTP 401/423/403 — mapeamento de login
       if ('status' in err) {
         const status = (err as { status: number }).status;
         if (status === 401) return { message: 'Credenciais inválidas.', errors };

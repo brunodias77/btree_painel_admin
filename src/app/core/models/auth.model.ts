@@ -27,10 +27,23 @@ export interface RegisterResponse {
   createdAt: string;
 }
 
+export interface RefreshTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresAt: string;
+  userId: string;
+  username: string;
+  email: string;
+}
+
 export interface User {
   userId: string;
   username: string;
   email: string;
+}
+
+export interface LogoutRequest {
+  refreshToken: string;
 }
 
 export interface ApiError {
