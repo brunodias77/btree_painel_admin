@@ -9,7 +9,7 @@ function addBearer(req: import('@angular/common/http').HttpRequest<unknown>, tok
 }
 
 // Public auth endpoints that must NOT carry a Bearer token.
-// /2fa/setup and /2fa/enable are intentionally excluded: they require JWT.
+// Setup/enable 2FA endpoints are intentionally excluded: they require JWT.
 const PUBLIC_AUTH_PATTERNS = [
   '/v1/auth/login',
   '/v1/auth/register',
