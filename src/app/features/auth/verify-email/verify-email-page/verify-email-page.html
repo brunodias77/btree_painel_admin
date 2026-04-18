@@ -1,0 +1,77 @@
+<div class="min-h-screen bg-zinc-50 flex flex-col items-center justify-center px-4 py-12">
+
+  <a routerLink="/login" class="mb-10 text-zinc-900 text-2xl font-bold tracking-tight">
+    btree
+  </a>
+
+  <div class="w-full max-w-md bg-white rounded-2xl border border-zinc-200 shadow-sm px-8 py-10">
+
+    <!-- ── Success ───────────────────────────────────────── -->
+    @if (isSuccess()) {
+      <div class="text-center">
+        <div class="flex items-center justify-center w-14 h-14 rounded-full bg-green-50 mx-auto mb-5">
+          <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h1 class="text-xl font-semibold text-zinc-900 mb-2">E-mail verificado!</h1>
+        <p class="text-sm text-zinc-500 mb-8">
+          Sua conta foi confirmada com sucesso.<br>
+          Você já pode fazer login no painel.
+        </p>
+        <a
+          routerLink="/login"
+          class="inline-flex items-center justify-center w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-700 transition-colors"
+        >
+          Fazer login
+        </a>
+      </div>
+    }
+
+    <!-- ── Form (idle / loading / error) ────────────────── -->
+    @if (!isSuccess()) {
+      <div class="mb-6">
+        <h1 class="text-xl font-semibold text-zinc-900 mb-1">Verificar e-mail</h1>
+        <p class="text-sm text-zinc-500">
+          Cole abaixo o token recebido no e-mail de verificação.
+        </p>
+      </div>
+
+      <!-- Error banner -->
+      @if (isError()) {
+        <div class="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-5" role="alert">
+          <svg class="w-4 h-4 mt-0.5 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          </svg>
+          <p class="text-sm text-red-700">{{ _errorMessage() }}</p>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-5">
+
+        <app-input
+          formControlName="token"
+          id="token"
+          label="Token de verificação"
+          placeholder="Cole o token recebido no e-mail"
+          [error]="tokenError()"
+        />
+
+        <app-button type="submit" [loading]="isLoading()" [block]="true">
+          {{ isLoading() ? 'Verificando...' : 'Verificar e-mail' }}
+        </app-button>
+
+      </form>
+
+      <p class="mt-6 text-center text-sm text-zinc-500">
+        Lembrou a senha?
+        <a routerLink="/login" class="font-medium text-zinc-900 hover:underline">Fazer login</a>
+      </p>
+    }
+
+  </div>
+
+  <p class="mt-8 text-xs text-zinc-400">&copy; {{ currentYear }} btree. Todos os direitos reservados.</p>
+
+</div>

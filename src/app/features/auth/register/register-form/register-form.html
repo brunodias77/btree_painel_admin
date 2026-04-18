@@ -1,0 +1,73 @@
+@if (serverErrors().length) {
+  <div
+    class="bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-6"
+    role="alert"
+  >
+    <div class="flex items-start gap-3">
+      <svg class="w-4 h-4 mt-0.5 shrink-0 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+      </svg>
+      <ul class="text-sm text-red-700 space-y-0.5">
+        @for (err of serverErrors(); track err) {
+          <li>{{ err }}</li>
+        }
+      </ul>
+    </div>
+  </div>
+}
+
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-5">
+
+  <app-input
+    formControlName="username"
+    id="username"
+    label="Nome de usuário"
+    placeholder="joao_silva"
+    [error]="usernameError()"
+  />
+
+  <app-input
+    formControlName="email"
+    id="email"
+    type="email"
+    label="E-mail"
+    placeholder="seu@email.com"
+    [error]="emailError()"
+  />
+
+  <app-input
+    formControlName="password"
+    id="password"
+    type="password"
+    label="Senha"
+    placeholder="Mín. 8 caracteres"
+    [showPasswordToggle]="true"
+    [error]="passwordError()"
+  />
+
+  <app-input
+    formControlName="confirmPassword"
+    id="confirmPassword"
+    type="password"
+    label="Confirmar senha"
+    placeholder="Repita a senha"
+    [showPasswordToggle]="true"
+    [error]="confirmPasswordError()"
+  />
+
+  <!-- Password rules hint -->
+  <p class="text-xs text-zinc-400 -mt-2">
+    A senha deve ter no mínimo 8 caracteres, incluindo maiúscula, minúscula e número.
+  </p>
+
+  <app-button type="submit" [loading]="loading()" [block]="true">
+    {{ loading() ? 'Criando conta...' : 'Criar conta' }}
+  </app-button>
+
+</form>
+
+<p class="mt-6 text-center text-sm text-zinc-500">
+  Já tem uma conta?
+  <a routerLink="/login" class="font-medium text-zinc-900 hover:underline">Entrar</a>
+</p>

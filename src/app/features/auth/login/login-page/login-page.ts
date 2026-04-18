@@ -1,9 +1,15 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { LoginForm } from '../login-form/login-form';
 
 @Component({
   selector: 'app-login-page',
-  imports: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LoginForm],
   templateUrl: './login-page.html',
-  styleUrl: './login-page.css',
 })
-export class LoginPage {}
+export class LoginPage {
+  // Bound automatically from ?registered=1 via withComponentInputBinding()
+  readonly registered = input<string>('');
+
+  protected readonly currentYear = new Date().getFullYear();
+}

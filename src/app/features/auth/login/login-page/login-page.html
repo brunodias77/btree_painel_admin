@@ -1,1 +1,46 @@
-<p>login-page works!</p>
+<div class="min-h-screen flex">
+
+  <!-- Left panel: branding -->
+  <div class="hidden lg:flex lg:w-1/2 bg-zinc-950 flex-col justify-between p-12">
+    <div>
+      <span class="text-white text-2xl font-bold tracking-tight">btree</span>
+    </div>
+    <div>
+      <h1 class="text-white text-4xl font-semibold leading-tight mb-4">
+        Painel Administrativo
+      </h1>
+      <p class="text-zinc-400 text-lg">
+        Gerencie sua operação com controle total e segurança.
+      </p>
+    </div>
+    <p class="text-zinc-600 text-sm">&copy; {{ currentYear }} btree. Todos os direitos reservados.</p>
+  </div>
+
+  <!-- Right panel: form -->
+  <div class="flex-1 flex items-center justify-center bg-white px-6 py-12">
+    <div class="w-full max-w-sm">
+
+      <div class="lg:hidden mb-8">
+        <span class="text-zinc-900 text-2xl font-bold tracking-tight">btree</span>
+      </div>
+
+      <h2 class="text-2xl font-semibold text-zinc-900 mb-1">Entrar</h2>
+      <p class="text-zinc-500 text-sm mb-8">Acesse sua conta para continuar.</p>
+
+      @if (registered()) {
+        <div class="flex items-start gap-3 bg-green-50 border border-green-200 text-green-800 text-sm rounded-lg px-4 py-3 mb-6" role="status">
+          <svg class="w-4 h-4 mt-0.5 shrink-0 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          <span>
+            Conta criada com sucesso! Verifique seu e-mail para ativar o acesso.
+          </span>
+        </div>
+      }
+
+      <app-login-form />
+
+    </div>
+  </div>
+
+</div>
