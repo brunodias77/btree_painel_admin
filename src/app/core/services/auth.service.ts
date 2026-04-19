@@ -9,6 +9,7 @@ import {
   AddressItem,
   ApiError,
   ListAddressesResponse,
+  SetDefaultAddressResponse,
   UpdateAddressRequest,
   UpdateAddressResponse,
   ConfirmPasswordResetRequest,
@@ -246,6 +247,37 @@ export class AuthService {
       throw err;
     } finally {
       this._loading.set(false);
+    }
+  }
+
+  async setDefaultAddress(addressId: string): Promise<SetDefaultAddressResponse> {
+    this._error.set(null);
+    this._serverErrors.set([]);
+    try {
+      return await firstValueFrom(
+        this.http.patch<SetDefaultAddressResponse>(
+          `${environment.apiBaseUrl}/v1/users/me/addresses/${addressId}/default`,
+          {},
+        ),
+      );
+    } catch (err: unknown) {
+      const { message } = extractApiError(err);
+      this._error.set(message ?? 'Erro ao definir endereço padrão. Tente novamente.');
+      throw err;
+    }
+  }
+
+  async deleteAddress(addressId: string): Promise<void> {
+    this._error.set(null);
+    this._serverErrors.set([]);
+    try {
+      await firstValueFrom(
+        this.http.delete<void>(`${environment.apiBaseUrl}/v1/users/me/addresses/${addressId}`),
+      );
+    } catch (err: unknown) {
+      const { message } = extractApiError(err);
+      this._error.set(message ?? 'Erro ao remover endereço. Tente novamente.');
+      throw err;
     }
   }
 

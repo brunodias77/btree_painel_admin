@@ -217,6 +217,25 @@ export interface UpdateAddressResponse {
   updated_at: string;
 }
 
+export interface SetDefaultAddressResponse {
+  id: string;
+  user_id: string;
+  label: string | null;
+  recipient_name: string | null;
+  street: string;
+  number: string | null;
+  complement: string | null;
+  neighborhood: string | null;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+  is_default: boolean;
+  is_billing_address: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface GetProfileResponse {
   id: string;
   user_id: string;
