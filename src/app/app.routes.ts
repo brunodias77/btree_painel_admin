@@ -3,6 +3,8 @@ import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
+
+  // ── Rotas públicas (sem layout) ────────────────────────────
   {
     path: 'login',
     loadComponent: () =>
@@ -33,35 +35,41 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/auth/reset-password/reset-password-page/reset-password-page').then(m => m.ResetPasswordPage),
   },
+
+  // ── Rotas protegidas (com AdminLayout) ─────────────────────
   {
-    path: 'dashboard',
+    path: '',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/dashboard/dashboard-page/dashboard-page').then(m => m.DashboardPage),
+      import('./shared/components/admin-layout/admin-layout').then(m => m.AdminLayout),
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/dashboard/dashboard-page/dashboard-page').then(m => m.DashboardPage),
+      },
+      {
+        path: 'settings/profile',
+        loadComponent: () =>
+          import('./features/settings/profile/profile-page/profile-page').then(m => m.ProfilePage),
+      },
+      {
+        path: 'settings/profile/edit',
+        loadComponent: () =>
+          import('./features/settings/profile/profile-edit-page/profile-edit-page').then(m => m.ProfileEditPage),
+      },
+      {
+        path: 'settings/two-factor',
+        loadComponent: () =>
+          import('./features/settings/two-factor-setup/two-factor-setup-page/two-factor-setup-page').then(m => m.TwoFactorSetupPage),
+      },
+      {
+        path: 'catalog/brands/create',
+        loadComponent: () =>
+          import('./features/catalog/brands/create-brand-page/create-brand-page').then(m => m.CreateBrandPage),
+      },
+    ],
   },
-  {
-    path: 'settings/two-factor',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/settings/two-factor-setup/two-factor-setup-page/two-factor-setup-page').then(m => m.TwoFactorSetupPage),
-  },
-  {
-    path: 'settings/profile',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/settings/profile/profile-page/profile-page').then(m => m.ProfilePage),
-  },
-  {
-    path: 'settings/profile/edit',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/settings/profile/profile-edit-page/profile-edit-page').then(m => m.ProfileEditPage),
-  },
-  {
-    path: 'catalog/brands/create',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/catalog/brands/create-brand-page/create-brand-page').then(m => m.CreateBrandPage),
-  },
+
   { path: '**', redirectTo: '/login' },
 ];

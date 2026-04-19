@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { BrandService } from '../brand.service';
 import { CreateBrandRequest } from '../../../../core/models/catalog.model';
 import { CreateBrandForm } from '../components/create-brand-form/create-brand-form';
@@ -7,7 +7,7 @@ import { CreateBrandForm } from '../components/create-brand-form/create-brand-fo
 @Component({
   selector: 'app-create-brand-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CreateBrandForm, RouterLink],
+  imports: [CreateBrandForm],
   templateUrl: './create-brand-page.html',
 })
 export class CreateBrandPage {
