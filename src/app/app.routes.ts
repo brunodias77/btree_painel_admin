@@ -45,5 +45,17 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/settings/two-factor-setup/two-factor-setup-page/two-factor-setup-page').then(m => m.TwoFactorSetupPage),
   },
+  {
+    path: 'settings/profile',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/settings/profile/profile-page/profile-page').then(m => m.ProfilePage),
+  },
+  {
+    path: 'settings/profile/edit',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/settings/profile/profile-edit-page/profile-edit-page').then(m => m.ProfileEditPage),
+  },
   { path: '**', redirectTo: '/login' },
 ];

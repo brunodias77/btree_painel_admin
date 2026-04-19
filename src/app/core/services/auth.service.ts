@@ -4,9 +4,13 @@ import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
+  AddAddressRequest,
+  AddAddressResponse,
   ApiError,
   ConfirmPasswordResetRequest,
+  CurrentUserResponse,
   ForgotPasswordRequest,
+  GetProfileResponse,
   LoginRequest,
   LoginResponse,
   LogoutRequest,
@@ -16,6 +20,8 @@ import {
   SetupTwoFactorResponse,
   SocialLoginRequest,
   SocialLoginResponse,
+  UpdateProfileRequest,
+  UpdateProfileResponse,
   User,
   VerifyTwoFactorResponse,
 } from '../models/auth.model';
@@ -171,6 +177,92 @@ export class AuthService {
     }
   }
 
+  async getCurrentUser(): Promise<User> {
+    this._loading.set(true);
+    this._error.set(null);
+    try {
+      const res = await firstValueFrom(
+        this.http.get<CurrentUserResponse>(`${environment.apiBaseUrl}/v1/users/me`),
+      );
+      const user = mapCurrentUser(res);
+      this.persistUser(user);
+      return user;
+    } catch (err: unknown) {
+      const { message } = extractApiError(err);
+      this._error.set(message ?? 'Erro ao carregar perfil. Tente novamente.');
+      throw err;
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  async getProfile(): Promise<GetProfileResponse> {
+    this._loading.set(true);
+    this._error.set(null);
+    try {
+      return await firstValueFrom(
+        this.http.get<GetProfileResponse>(`${environment.apiBaseUrl}/v1/users`),
+      );
+    } catch (err: unknown) {
+      const { message } = extractApiError(err);
+      this._error.set(message ?? 'Erro ao carregar perfil. Tente novamente.');
+      throw err;
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  async updateProfile(data: UpdateProfileRequest): Promise<UpdateProfileResponse> {
+    this._loading.set(true);
+    this._error.set(null);
+    this._serverErrors.set([]);
+    try {
+      const res = await firstValueFrom(
+        this.http.put<UpdateProfileResponse>(`${environment.apiBaseUrl}/v1/users/me/profile`, data),
+      );
+      const current = this._user();
+      if (current) {
+        this.persistUser({
+          ...current,
+          profile: {
+            first_name: res.first_name,
+            last_name: res.last_name,
+            display_name: res.display_name,
+            avatar_url: res.avatar_url,
+            preferred_language: res.preferred_language,
+            preferred_currency: res.preferred_currency,
+          },
+        });
+      }
+      return res;
+    } catch (err: unknown) {
+      const { message, errors } = extractApiError(err);
+      this._error.set(message ?? 'Erro ao atualizar perfil. Tente novamente.');
+      this._serverErrors.set(errors);
+      throw err;
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  async addAddress(data: AddAddressRequest): Promise<AddAddressResponse> {
+    this._loading.set(true);
+    this._error.set(null);
+    this._serverErrors.set([]);
+    try {
+      return await firstValueFrom(
+        this.http.post<AddAddressResponse>(`${environment.apiBaseUrl}/v1/users`, data),
+      );
+    } catch (err: unknown) {
+      const { message, errors } = extractApiError(err);
+      this._error.set(message ?? 'Erro ao cadastrar endereço. Tente novamente.');
+      this._serverErrors.set(errors);
+      throw err;
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
   verifyEmail(token: string): Promise<void> {
     return firstValueFrom(
       this.http.post<void>(`${environment.apiBaseUrl}/v1/auth/verify-email`, { token }),
@@ -273,6 +365,10 @@ export class AuthService {
     localStorage.setItem(STORAGE_KEYS.accessToken, accessToken);
     localStorage.setItem(STORAGE_KEYS.refreshToken, refreshToken);
     localStorage.setItem(STORAGE_KEYS.accessTokenExpiresAt, expiresAt);
+    this.persistUser(user);
+  }
+
+  private persistUser(user: User): void {
     localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(user));
     this._user.set(user);
   }
@@ -285,6 +381,18 @@ export class AuthService {
       return null;
     }
   }
+}
+
+function mapCurrentUser(res: CurrentUserResponse): User {
+  return {
+    userId: res.id,
+    username: res.username,
+    email: res.email,
+    emailVerified: res.email_verified,
+    roles: res.roles,
+    profile: res.profile,
+    createdAt: res.created_at,
+  };
 }
 
 function extractTwoFactorError(err: unknown): string {
