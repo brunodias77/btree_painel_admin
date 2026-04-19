@@ -9,8 +9,8 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { CreateBrandRequest } from '../../../../../core/models/catalog.model';
-import { Button } from '../../../../../shared/components/button/button';
+import { CreateBrandRequest } from '../../../../core/models/catalog.model';
+import { Button } from '../../../../shared/components/button/button';
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 

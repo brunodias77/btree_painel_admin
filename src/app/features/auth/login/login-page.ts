@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { LoginForm } from '../login-form/login-form';
+import { LoginForm } from './login-form/login-form';
 
 @Component({
   selector: 'app-login-page',

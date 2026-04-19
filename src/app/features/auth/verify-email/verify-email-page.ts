@@ -9,9 +9,9 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../../../core/services/auth.service';
-import { Button } from '../../../../shared/components/button/button';
-import { Input } from '../../../../shared/components/input/input';
+import { AuthService } from '../../../core/services/auth.service';
+import { Button } from '../../../shared/components/button/button';
+import { Input } from '../../../shared/components/input/input';
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
 

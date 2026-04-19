@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { TwoFactorVerifyForm } from '../two-factor-verify-form/two-factor-verify-form';
+import { TwoFactorVerifyForm } from './two-factor-verify-form/two-factor-verify-form';
 
 @Component({
   selector: 'app-two-factor-verify-page',

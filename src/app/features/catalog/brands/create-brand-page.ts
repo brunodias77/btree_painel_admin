@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { BrandService } from '../brand.service';
-import { CreateBrandRequest } from '../../../../core/models/catalog.model';
-import { CreateBrandForm } from '../components/create-brand-form/create-brand-form';
+import { BrandService } from '../../../core/services/brand.service';
+import { CreateBrandRequest } from '../../../core/models/catalog.model';
+import { CreateBrandForm } from './create-brand-form/create-brand-form';
 
 @Component({
   selector: 'app-create-brand-page',

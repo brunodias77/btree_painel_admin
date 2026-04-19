@@ -9,8 +9,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import QRCode from 'qrcode';
-import { AuthService } from '../../../../core/services/auth.service';
-import { Button } from '../../../../shared/components/button/button';
+import { AuthService } from '../../../core/services/auth.service';
+import { Button } from '../../../shared/components/button/button';
 
 type Step = 'idle' | 'scanning' | 'success';
 

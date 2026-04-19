@@ -1,8 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { BrandResponse, CreateBrandRequest } from '../../../core/models/catalog.model';
+import { environment } from '../../../environments/environment';
+import { BrandResponse, CreateBrandRequest } from '../models/catalog.model';
 
 @Injectable({ providedIn: 'root' })
 export class BrandService {

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { ResetPasswordForm } from '../reset-password-form/reset-password-form';
+import { ResetPasswordForm } from './reset-password-form/reset-password-form';
 
 @Component({
   selector: 'app-reset-password-page',

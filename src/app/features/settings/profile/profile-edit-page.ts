@@ -10,9 +10,9 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { AuthService } from '../../../../core/services/auth.service';
-import { UpdateProfileRequest } from '../../../../core/models/auth.model';
-import { Button } from '../../../../shared/components/button/button';
+import { AuthService } from '../../../core/services/auth.service';
+import { UpdateProfileRequest } from '../../../core/models/auth.model';
+import { Button } from '../../../shared/components/button/button';
 
 @Component({
   selector: 'app-profile-edit-page',

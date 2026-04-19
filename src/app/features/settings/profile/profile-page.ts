@@ -5,10 +5,10 @@ import {
   resource,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../../../core/services/auth.service';
-import { ProfileHeader } from '../components/profile-header/profile-header';
-import { ProfileInfoSection } from '../components/profile-info-section/profile-info-section';
-import { AddressSection } from '../components/address-section/address-section';
+import { AuthService } from '../../../core/services/auth.service';
+import { ProfileHeader } from './components/profile-header/profile-header';
+import { ProfileInfoSection } from './components/profile-info-section/profile-info-section';
+import { AddressSection } from './components/address-section/address-section';
 
 @Component({
   selector: 'app-profile-page',
