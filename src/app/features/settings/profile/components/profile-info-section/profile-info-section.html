@@ -1,0 +1,108 @@
+<div class="grid gap-4 sm:grid-cols-2">
+
+  <!-- Dados pessoais -->
+  <div class="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
+    <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wide mb-4">Dados pessoais</h2>
+    <dl class="space-y-3">
+      <div class="flex justify-between gap-4">
+        <dt class="text-sm text-zinc-500">Nome</dt>
+        <dd class="text-sm font-medium text-zinc-900 text-right">
+          {{ profile()?.first_name || '—' }}
+        </dd>
+      </div>
+      <div class="flex justify-between gap-4">
+        <dt class="text-sm text-zinc-500">Sobrenome</dt>
+        <dd class="text-sm font-medium text-zinc-900 text-right">
+          {{ profile()?.last_name || '—' }}
+        </dd>
+      </div>
+      <div class="flex justify-between gap-4">
+        <dt class="text-sm text-zinc-500">Nome de exibição</dt>
+        <dd class="text-sm font-medium text-zinc-900 text-right">
+          {{ profile()?.display_name || '—' }}
+        </dd>
+      </div>
+      <div class="flex justify-between gap-4">
+        <dt class="text-sm text-zinc-500">Data de nascimento</dt>
+        <dd class="text-sm font-medium text-zinc-900 text-right">
+          {{ profile()?.birth_date ? (profile()!.birth_date! | date:'dd/MM/yyyy') : '—' }}
+        </dd>
+      </div>
+      <div class="flex justify-between gap-4">
+        <dt class="text-sm text-zinc-500">Gênero</dt>
+        <dd class="text-sm font-medium text-zinc-900 text-right">
+          {{ genderLabel(profile()?.gender ?? null) }}
+        </dd>
+      </div>
+      <div class="flex justify-between gap-4">
+        <dt class="text-sm text-zinc-500">CPF</dt>
+        <dd class="text-sm font-medium text-zinc-900 text-right">
+          {{ profile()?.cpf || '—' }}
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <!-- Preferências -->
+  <div class="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
+    <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wide mb-4">Preferências</h2>
+    <dl class="space-y-3">
+      <div class="flex justify-between gap-4">
+        <dt class="text-sm text-zinc-500">Idioma</dt>
+        <dd class="text-sm font-medium text-zinc-900 text-right">
+          {{ profile()?.preferred_language || '—' }}
+        </dd>
+      </div>
+      <div class="flex justify-between gap-4">
+        <dt class="text-sm text-zinc-500">Moeda</dt>
+        <dd class="text-sm font-medium text-zinc-900 text-right">
+          {{ profile()?.preferred_currency || '—' }}
+        </dd>
+      </div>
+      <div class="flex justify-between gap-4">
+        <dt class="text-sm text-zinc-500">Newsletter</dt>
+        <dd class="text-sm font-medium text-right">
+          @if (profile()?.newsletter_subscribed) {
+            <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+              Inscrito
+            </span>
+          } @else {
+            <span class="text-zinc-400">Não inscrito</span>
+          }
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <!-- Conta -->
+  <div class="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6 sm:col-span-2">
+    <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wide mb-4">Conta</h2>
+    <dl class="grid sm:grid-cols-2 gap-3">
+      <div class="flex justify-between gap-4">
+        <dt class="text-sm text-zinc-500">Termos aceitos em</dt>
+        <dd class="text-sm font-medium text-zinc-900 text-right">
+          {{ profile()?.accepted_terms_at ? (profile()!.accepted_terms_at! | date:'dd/MM/yyyy') : '—' }}
+        </dd>
+      </div>
+      <div class="flex justify-between gap-4">
+        <dt class="text-sm text-zinc-500">Privacidade aceita em</dt>
+        <dd class="text-sm font-medium text-zinc-900 text-right">
+          {{ profile()?.accepted_privacy_at ? (profile()!.accepted_privacy_at! | date:'dd/MM/yyyy') : '—' }}
+        </dd>
+      </div>
+      <div class="flex justify-between gap-4">
+        <dt class="text-sm text-zinc-500">Perfil criado em</dt>
+        <dd class="text-sm font-medium text-zinc-900 text-right">
+          {{ profile()?.created_at ? (profile()!.created_at | date:'dd/MM/yyyy') : '—' }}
+        </dd>
+      </div>
+      <div class="flex justify-between gap-4">
+        <dt class="text-sm text-zinc-500">Última atualização</dt>
+        <dd class="text-sm font-medium text-zinc-900 text-right">
+          {{ profile()?.updated_at ? (profile()!.updated_at | date:'dd/MM/yyyy HH:mm') : '—' }}
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+</div>

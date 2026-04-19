@@ -1,0 +1,103 @@
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-4">
+
+  <!-- Label + Destinatário -->
+  <div class="grid sm:grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-medium text-zinc-700 mb-1">Rótulo <span class="text-zinc-400 font-normal">(opcional)</span></label>
+      <input formControlName="label" type="text" placeholder="Ex: Casa, Trabalho"
+        class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent" />
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-zinc-700 mb-1">Destinatário <span class="text-zinc-400 font-normal">(opcional)</span></label>
+      <input formControlName="recipient_name" type="text" placeholder="Nome do destinatário"
+        class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent" />
+    </div>
+  </div>
+
+  <!-- Logradouro + Número -->
+  <div class="grid sm:grid-cols-3 gap-4">
+    <div class="sm:col-span-2">
+      <label class="block text-sm font-medium text-zinc-700 mb-1">Logradouro <span class="text-red-500">*</span></label>
+      <input formControlName="street" type="text" placeholder="Rua, Avenida..."
+        class="w-full rounded-lg border px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+        [class.border-red-400]="streetError()"
+        [class.border-zinc-300]="!streetError()" />
+      @if (streetError()) {
+        <p class="mt-1 text-xs text-red-600">{{ streetError() }}</p>
+      }
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-zinc-700 mb-1">Número</label>
+      <input formControlName="number" type="text" placeholder="123"
+        class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent" />
+    </div>
+  </div>
+
+  <!-- Complemento + Bairro -->
+  <div class="grid sm:grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-medium text-zinc-700 mb-1">Complemento</label>
+      <input formControlName="complement" type="text" placeholder="Apto, Bloco..."
+        class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent" />
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-zinc-700 mb-1">Bairro</label>
+      <input formControlName="neighborhood" type="text" placeholder="Bairro"
+        class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent" />
+    </div>
+  </div>
+
+  <!-- Cidade + Estado + CEP -->
+  <div class="grid sm:grid-cols-3 gap-4">
+    <div class="sm:col-span-1">
+      <label class="block text-sm font-medium text-zinc-700 mb-1">Cidade <span class="text-red-500">*</span></label>
+      <input formControlName="city" type="text" placeholder="São Paulo"
+        class="w-full rounded-lg border px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+        [class.border-red-400]="cityError()"
+        [class.border-zinc-300]="!cityError()" />
+      @if (cityError()) {
+        <p class="mt-1 text-xs text-red-600">{{ cityError() }}</p>
+      }
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-zinc-700 mb-1">Estado <span class="text-red-500">*</span></label>
+      <input formControlName="state" type="text" placeholder="SP" maxlength="2"
+        class="w-full rounded-lg border px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent uppercase"
+        [class.border-red-400]="stateError()"
+        [class.border-zinc-300]="!stateError()" />
+      @if (stateError()) {
+        <p class="mt-1 text-xs text-red-600">{{ stateError() }}</p>
+      }
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-zinc-700 mb-1">CEP <span class="text-red-500">*</span></label>
+      <input formControlName="postal_code" type="text" placeholder="00000-000"
+        class="w-full rounded-lg border px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+        [class.border-red-400]="postalCodeError()"
+        [class.border-zinc-300]="!postalCodeError()" />
+      @if (postalCodeError()) {
+        <p class="mt-1 text-xs text-red-600">{{ postalCodeError() }}</p>
+      }
+    </div>
+  </div>
+
+  <!-- Endereço de cobrança -->
+  <div class="flex items-center gap-2">
+    <input formControlName="is_billing_address" type="checkbox" id="is_billing_address"
+      class="h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900" />
+    <label for="is_billing_address" class="text-sm text-zinc-700">Usar como endereço de cobrança</label>
+  </div>
+
+  <!-- Ações -->
+  <div class="flex items-center justify-end gap-3 pt-2">
+    <button type="button" (click)="cancel()"
+      class="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 transition-colors">
+      Cancelar
+    </button>
+    <button type="submit"
+      class="inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-zinc-700 transition-colors">
+      Salvar endereço
+    </button>
+  </div>
+
+</form>
