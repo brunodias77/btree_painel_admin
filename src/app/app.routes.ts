@@ -57,5 +57,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/settings/profile/profile-edit-page/profile-edit-page').then(m => m.ProfileEditPage),
   },
+  {
+    path: 'catalog/brands/create',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/catalog/brands/create-brand-page/create-brand-page').then(m => m.CreateBrandPage),
+  },
   { path: '**', redirectTo: '/login' },
 ];

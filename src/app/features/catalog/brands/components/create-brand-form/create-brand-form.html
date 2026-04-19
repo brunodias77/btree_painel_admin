@@ -1,0 +1,103 @@
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-5">
+
+  <!-- Nome -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-700 mb-1">
+      Nome <span class="text-red-500">*</span>
+    </label>
+    <input
+      formControlName="name"
+      type="text"
+      placeholder="Ex: Nike, Adidas, Puma"
+      class="w-full rounded-lg border px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+             focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+      [class.border-red-400]="nameError()"
+      [class.border-zinc-300]="!nameError()"
+    />
+    @if (nameError()) {
+      <p class="mt-1 text-xs text-red-600">{{ nameError() }}</p>
+    }
+  </div>
+
+  <!-- Slug -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-700 mb-1">
+      Slug <span class="text-red-500">*</span>
+      <span class="ml-1 text-zinc-400 font-normal">(kebab-case, único)</span>
+    </label>
+    <div class="flex gap-2">
+      <input
+        formControlName="slug"
+        type="text"
+        placeholder="ex: minha-marca"
+        class="flex-1 rounded-lg border px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+               focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+        [class.border-red-400]="slugError()"
+        [class.border-zinc-300]="!slugError()"
+      />
+      <button
+        type="button"
+        (click)="generateSlug()"
+        class="shrink-0 rounded-lg border border-zinc-300 px-3 py-2 text-xs font-medium text-zinc-600
+               hover:bg-zinc-100 hover:border-zinc-400 transition-colors"
+        title="Gerar slug a partir do nome"
+      >
+        Gerar
+      </button>
+    </div>
+    @if (slugError()) {
+      <p class="mt-1 text-xs text-red-600">{{ slugError() }}</p>
+    } @else {
+      <p class="mt-1 text-xs text-zinc-400">Use apenas letras minúsculas, números e hífens.</p>
+    }
+  </div>
+
+  <!-- Descrição -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-700 mb-1">
+      Descrição <span class="text-zinc-400 font-normal">(opcional)</span>
+    </label>
+    <textarea
+      formControlName="description"
+      rows="3"
+      placeholder="Breve descrição da marca..."
+      class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+             focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent resize-none"
+    ></textarea>
+  </div>
+
+  <!-- URL do Logo -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-700 mb-1">
+      URL do logo <span class="text-zinc-400 font-normal">(opcional)</span>
+    </label>
+    <input
+      formControlName="logo_url"
+      type="url"
+      placeholder="https://cdn.example.com/logo.png"
+      class="w-full rounded-lg border px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+             focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+      [class.border-red-400]="logoUrlError()"
+      [class.border-zinc-300]="!logoUrlError()"
+    />
+    @if (logoUrlError()) {
+      <p class="mt-1 text-xs text-red-600">{{ logoUrlError() }}</p>
+    }
+  </div>
+
+  <!-- Ações -->
+  <div class="flex items-center justify-end gap-3 pt-2">
+    <button
+      type="button"
+      (click)="cancel()"
+      class="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600
+             hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
+    >
+      Cancelar
+    </button>
+    <app-button type="submit" [loading]="submitting()">
+      Criar marca
+    </app-button>
+  </div>
+
+</form>
