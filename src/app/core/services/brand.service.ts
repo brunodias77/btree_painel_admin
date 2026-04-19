@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { BrandResponse, CreateBrandRequest } from '../models/catalog.model';
+import { BrandItem, BrandResponse, CreateBrandRequest } from '../models/catalog.model';
 
 @Injectable({ providedIn: 'root' })
 export class BrandService {
@@ -13,6 +13,21 @@ export class BrandService {
 
   readonly loading      = this._loading.asReadonly();
   readonly serverErrors = this._serverErrors.asReadonly();
+
+  async listAll(): Promise<BrandItem[]> {
+    this._loading.set(true);
+    this._serverErrors.set([]);
+    try {
+      return await firstValueFrom(
+        this.http.get<BrandItem[]>(`${environment.apiBaseUrl}/v1/catalog/brands`),
+      );
+    } catch (err: unknown) {
+      this._serverErrors.set(extractErrors(err));
+      throw err;
+    } finally {
+      this._loading.set(false);
+    }
+  }
 
   async create(request: CreateBrandRequest): Promise<BrandResponse> {
     this._loading.set(true);

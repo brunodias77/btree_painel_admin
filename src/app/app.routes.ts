@@ -64,6 +64,11 @@ export const routes: Routes = [
           import('./features/settings/two-factor-setup/two-factor-setup-page').then(m => m.TwoFactorSetupPage),
       },
       {
+        path: 'catalog/brands',
+        loadComponent: () =>
+          import('./features/catalog/brands/brand-list-page').then(m => m.BrandListPage),
+      },
+      {
         path: 'catalog/brands/create',
         loadComponent: () =>
           import('./features/catalog/brands/create-brand-page').then(m => m.CreateBrandPage),
