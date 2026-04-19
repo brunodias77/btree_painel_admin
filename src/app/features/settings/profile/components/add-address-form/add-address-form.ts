@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { AddAddressRequest } from '../../../../../core/models/auth.model';
+import { AddAddressRequest, AddressItem } from '../../../../../core/models/auth.model';
 import { Button } from '../../../../../shared/components/button/button';
 
 @Component({
@@ -89,6 +89,23 @@ export class AddAddressForm {
 
   reset(): void {
     this.form.reset({ country: 'BR', is_billing_address: false });
+    this.wasSubmitted.set(false);
+  }
+
+  initialize(address: AddressItem): void {
+    this.form.patchValue({
+      label:              address.label ?? '',
+      recipient_name:     address.recipientName ?? '',
+      street:             address.street,
+      number:             address.number ?? '',
+      complement:         address.complement ?? '',
+      neighborhood:       address.neighborhood ?? '',
+      city:               address.city,
+      state:              address.state,
+      postal_code:        address.postalCode,
+      country:            address.country ?? 'BR',
+      is_billing_address: address.isBillingAddress,
+    });
     this.wasSubmitted.set(false);
   }
 

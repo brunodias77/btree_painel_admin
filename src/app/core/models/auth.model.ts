@@ -174,6 +174,49 @@ export interface AddAddressResponse {
   created_at: string;
 }
 
+export interface AddressItem {
+  id: string;
+  label: string | null;
+  recipientName: string | null;
+  street: string;
+  number: string | null;
+  complement: string | null;
+  neighborhood: string | null;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  isDefault: boolean;
+  isBillingAddress: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ListAddressesResponse {
+  items: AddressItem[];
+}
+
+export type UpdateAddressRequest = AddAddressRequest;
+
+export interface UpdateAddressResponse {
+  id: string;
+  user_id: string;
+  label: string | null;
+  recipient_name: string | null;
+  street: string;
+  number: string | null;
+  complement: string | null;
+  neighborhood: string | null;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+  is_default: boolean;
+  is_billing_address: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface GetProfileResponse {
   id: string;
   user_id: string;

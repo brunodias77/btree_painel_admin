@@ -6,7 +6,11 @@ import { environment } from '../../../environments/environment';
 import {
   AddAddressRequest,
   AddAddressResponse,
+  AddressItem,
   ApiError,
+  ListAddressesResponse,
+  UpdateAddressRequest,
+  UpdateAddressResponse,
   ConfirmPasswordResetRequest,
   CurrentUserResponse,
   ForgotPasswordRequest,
@@ -245,13 +249,47 @@ export class AuthService {
     }
   }
 
+  async listAddresses(): Promise<AddressItem[]> {
+    try {
+      const res = await firstValueFrom(
+        this.http.get<ListAddressesResponse>(`${environment.apiBaseUrl}/v1/users/me/addresses`),
+      );
+      return res.items;
+    } catch (err: unknown) {
+      const { message } = extractApiError(err);
+      this._error.set(message ?? 'Erro ao carregar endereços. Tente novamente.');
+      throw err;
+    }
+  }
+
+  async updateAddress(addressId: string, data: UpdateAddressRequest): Promise<UpdateAddressResponse> {
+    this._loading.set(true);
+    this._error.set(null);
+    this._serverErrors.set([]);
+    try {
+      return await firstValueFrom(
+        this.http.put<UpdateAddressResponse>(
+          `${environment.apiBaseUrl}/v1/users/me/addresses/${addressId}`,
+          data,
+        ),
+      );
+    } catch (err: unknown) {
+      const { message, errors } = extractApiError(err);
+      this._error.set(message ?? 'Erro ao atualizar endereço. Tente novamente.');
+      this._serverErrors.set(errors);
+      throw err;
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
   async addAddress(data: AddAddressRequest): Promise<AddAddressResponse> {
     this._loading.set(true);
     this._error.set(null);
     this._serverErrors.set([]);
     try {
       return await firstValueFrom(
-        this.http.post<AddAddressResponse>(`${environment.apiBaseUrl}/v1/users`, data),
+        this.http.post<AddAddressResponse>(`${environment.apiBaseUrl}/v1/users/me/addresses`, data),
       );
     } catch (err: unknown) {
       const { message, errors } = extractApiError(err);
