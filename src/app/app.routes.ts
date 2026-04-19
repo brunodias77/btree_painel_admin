@@ -69,6 +69,11 @@ export const routes: Routes = [
           import('./features/catalog/brands/brand-list-page').then(m => m.BrandListPage),
       },
       {
+        path: 'catalog/brands/:id/edit',
+        loadComponent: () =>
+          import('./features/catalog/brands/edit-brand-page').then(m => m.EditBrandPage),
+      },
+      {
         path: 'catalog/brands/create',
         loadComponent: () =>
           import('./features/catalog/brands/create-brand-page').then(m => m.CreateBrandPage),

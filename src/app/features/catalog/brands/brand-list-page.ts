@@ -29,4 +29,8 @@ export class BrandListPage implements OnInit {
   protected navigateToCreate(): void {
     this.router.navigate(['/catalog/brands/create']);
   }
+
+  protected navigateToEdit(brand: BrandItem): void {
+    this.router.navigate(['/catalog/brands', brand.id, 'edit'], { state: { brand } });
+  }
 }
