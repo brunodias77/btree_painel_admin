@@ -108,11 +108,11 @@ export interface ProductListResponse {
   total_pages: number;
 }
 
+/** Imagem enviada na criação de produto. Ordem no array determina sortOrder e primary (primeiro = primary). */
 export interface ProductImageEntry {
   url: string;
   alt_text?: string | null;
-  sort_order: number;
-  primary: boolean;
+  sort_order?: number;
 }
 
 export interface CreateProductRequest {

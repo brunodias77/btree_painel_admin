@@ -122,6 +122,24 @@ export class CreateProductForm {
     this.images.update(list => list.filter((_, i) => i !== index));
   }
 
+  protected moveImageUp(index: number): void {
+    if (index === 0) return;
+    this.images.update(list => {
+      const copy = [...list];
+      [copy[index - 1], copy[index]] = [copy[index], copy[index - 1]];
+      return copy;
+    });
+  }
+
+  protected moveImageDown(index: number): void {
+    this.images.update(list => {
+      if (index >= list.length - 1) return list;
+      const copy = [...list];
+      [copy[index], copy[index + 1]] = [copy[index + 1], copy[index]];
+      return copy;
+    });
+  }
+
   protected setImageUrl(index: number, url: string | null): void {
     this.images.update(list =>
       list.map((img, i) => i === index ? { ...img, url } : img),
@@ -187,7 +205,6 @@ export class CreateProductForm {
           url:        img.url!,
           alt_text:   img.alt_text || null,
           sort_order: i,
-          primary:    i === 0,
         })),
     });
   }
