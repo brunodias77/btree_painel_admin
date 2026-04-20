@@ -41,3 +41,39 @@ export interface UpdateBrandResponse {
   created_at: string;
   updated_at: string;
 }
+
+export interface CreateCategoryRequest {
+  parent_id?: string | null;
+  name: string;
+  slug: string;
+  description?: string | null;
+  image_url?: string | null;
+  sort_order?: number;
+}
+
+export interface CreateCategoryResponse {
+  id: string;
+  parent_id: string | null;
+  name: string;
+  slug: string;
+  description: string | null;
+  image_url: string | null;
+  sort_order: number;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CategoryItem {
+  id: string;
+  parent_id: string | null;
+  name: string;
+  slug: string;
+  description: string | null;
+  image_url: string | null;
+  sort_order: number;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+  children: CategoryItem[];
+}
