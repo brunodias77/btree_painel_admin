@@ -1,0 +1,119 @@
+<div class="min-h-full bg-zinc-50 px-4 py-6 sm:px-6 lg:px-8">
+
+  <!-- Header -->
+  <div class="mb-6 flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-zinc-900">Favoritos</h1>
+      <p class="mt-0.5 text-sm text-zinc-500">{{ store.favoriteProducts().length }} produto(s) salvo(s)</p>
+    </div>
+    <a
+      routerLink="/loja/produtos"
+      class="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50"
+    >
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+      Ver todos os produtos
+    </a>
+  </div>
+
+  @if (store.favoriteProducts().length === 0) {
+    <div class="flex flex-col items-center justify-center py-24 text-center">
+      <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-zinc-100">
+        <svg class="h-8 w-8 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+      </div>
+      <h3 class="text-sm font-semibold text-zinc-900">Nenhum favorito ainda</h3>
+      <p class="mt-1 text-sm text-zinc-500">Explore os produtos e salve os que você mais gostou.</p>
+      <a
+        routerLink="/loja/produtos"
+        class="mt-5 rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-700"
+      >
+        Explorar produtos
+      </a>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      @for (product of store.favoriteProducts(); track product.id) {
+        <div class="group flex flex-col overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm transition-shadow hover:shadow-md">
+
+          <!-- Image -->
+          <div class="relative aspect-square overflow-hidden bg-zinc-100">
+            <a [routerLink]="['/loja/produtos', product.id]">
+              <img
+                [src]="product.imageUrl"
+                [alt]="product.name"
+                class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+            </a>
+            @if (product.originalPrice) {
+              <span class="absolute left-3 top-3 rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                -{{ store.discount(product.price, product.originalPrice) }}%
+              </span>
+            }
+            <!-- Remove from favorites -->
+            <button
+              type="button"
+              (click)="store.toggleFavorite(product.id)"
+              class="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md text-red-500 transition-colors hover:text-red-700"
+              title="Remover dos favoritos"
+            >
+              <svg class="h-4 w-4" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Info -->
+          <div class="flex flex-1 flex-col p-4">
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-zinc-400">
+              {{ product.category }} · {{ product.brand }}
+            </p>
+            <a
+              [routerLink]="['/loja/produtos', product.id]"
+              class="mt-1 line-clamp-2 text-sm font-semibold text-zinc-900 hover:text-zinc-600 transition-colors"
+            >
+              {{ product.name }}
+            </a>
+
+            <!-- Stars -->
+            <div class="mt-2 flex items-center gap-1">
+              @for (star of stars; track star) {
+                <svg
+                  class="h-3 w-3"
+                  [class]="star <= Math.round(product.rating) ? 'text-amber-400' : 'text-zinc-200'"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              }
+              <span class="ml-1 text-[10px] text-zinc-400">({{ product.reviewCount }})</span>
+            </div>
+
+            <!-- Price + CTA -->
+            <div class="mt-auto flex items-end justify-between pt-3">
+              <div>
+                @if (product.originalPrice) {
+                  <p class="text-xs text-zinc-400 line-through">{{ store.formatPrice(product.originalPrice) }}</p>
+                }
+                <p class="text-base font-bold text-zinc-900">{{ store.formatPrice(product.price) }}</p>
+              </div>
+              <button
+                type="button"
+                (click)="store.addToCart(product)"
+                class="rounded-xl bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-zinc-700 active:scale-95"
+              >
+                Adicionar
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

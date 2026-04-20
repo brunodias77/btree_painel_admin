@@ -1,0 +1,274 @@
+<div class="min-h-full bg-zinc-50 px-4 py-6 sm:px-6 lg:px-8">
+
+  @if (orderPlaced()) {
+    <!-- Success state -->
+    <div class="flex flex-col items-center justify-center py-24 text-center">
+      <div class="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+        <svg class="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-zinc-900">Pedido realizado!</h1>
+      <p class="mt-2 text-sm text-zinc-500">
+        Obrigado pela sua compra. Você receberá um e-mail de confirmação em breve.
+      </p>
+      <p class="mt-1 text-xs text-zinc-400">Número do pedido: #{{ orderNumber() }}</p>
+      <a
+        routerLink="/loja/produtos"
+        class="mt-8 rounded-xl bg-zinc-900 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-zinc-700"
+      >
+        Continuar comprando
+      </a>
+    </div>
+  } @else {
+    <!-- Header -->
+    <div class="mb-6 flex items-center gap-3">
+      <a routerLink="/loja/carrinho" class="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-200 hover:text-zinc-900">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </a>
+      <h1 class="text-2xl font-bold text-zinc-900">Checkout</h1>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+
+        <!-- Form -->
+        <div class="lg:col-span-2 space-y-6">
+
+          <!-- Personal info -->
+          <div class="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm">
+            <h2 class="mb-4 text-sm font-semibold text-zinc-900">Dados pessoais</h2>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label class="mb-1.5 block text-xs font-medium text-zinc-700">Nome *</label>
+                <input
+                  formControlName="firstName"
+                  type="text"
+                  placeholder="João"
+                  [class]="hasError('firstName')
+                    ? 'w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-400/20'
+                    : 'w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10'"
+                />
+                @if (hasError('firstName')) {
+                  <p class="mt-1 text-xs text-red-500">Campo obrigatório</p>
+                }
+              </div>
+              <div>
+                <label class="mb-1.5 block text-xs font-medium text-zinc-700">Sobrenome *</label>
+                <input
+                  formControlName="lastName"
+                  type="text"
+                  placeholder="Silva"
+                  [class]="hasError('lastName')
+                    ? 'w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-400/20'
+                    : 'w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10'"
+                />
+                @if (hasError('lastName')) {
+                  <p class="mt-1 text-xs text-red-500">Campo obrigatório</p>
+                }
+              </div>
+              <div>
+                <label class="mb-1.5 block text-xs font-medium text-zinc-700">E-mail *</label>
+                <input
+                  formControlName="email"
+                  type="email"
+                  placeholder="joao@email.com"
+                  [class]="hasError('email')
+                    ? 'w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-400/20'
+                    : 'w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10'"
+                />
+                @if (hasError('email')) {
+                  <p class="mt-1 text-xs text-red-500">E-mail inválido</p>
+                }
+              </div>
+              <div>
+                <label class="mb-1.5 block text-xs font-medium text-zinc-700">Telefone *</label>
+                <input
+                  formControlName="phone"
+                  type="tel"
+                  placeholder="(11) 99999-9999"
+                  [class]="hasError('phone')
+                    ? 'w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-400/20'
+                    : 'w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10'"
+                />
+                @if (hasError('phone')) {
+                  <p class="mt-1 text-xs text-red-500">Campo obrigatório</p>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Shipping address -->
+          <div class="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm">
+            <h2 class="mb-4 text-sm font-semibold text-zinc-900">Endereço de entrega</h2>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div class="sm:col-span-1">
+                <label class="mb-1.5 block text-xs font-medium text-zinc-700">CEP *</label>
+                <input
+                  formControlName="zipCode"
+                  type="text"
+                  placeholder="00000-000"
+                  [class]="hasError('zipCode')
+                    ? 'w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-400/20'
+                    : 'w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10'"
+                />
+                @if (hasError('zipCode')) {
+                  <p class="mt-1 text-xs text-red-500">Campo obrigatório</p>
+                }
+              </div>
+              <div class="sm:col-span-2">
+                <label class="mb-1.5 block text-xs font-medium text-zinc-700">Rua / Avenida *</label>
+                <input
+                  formControlName="address"
+                  type="text"
+                  placeholder="Rua das Flores"
+                  [class]="hasError('address')
+                    ? 'w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-400/20'
+                    : 'w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10'"
+                />
+                @if (hasError('address')) {
+                  <p class="mt-1 text-xs text-red-500">Campo obrigatório</p>
+                }
+              </div>
+              <div>
+                <label class="mb-1.5 block text-xs font-medium text-zinc-700">Número *</label>
+                <input
+                  formControlName="number"
+                  type="text"
+                  placeholder="123"
+                  [class]="hasError('number')
+                    ? 'w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-400/20'
+                    : 'w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10'"
+                />
+                @if (hasError('number')) {
+                  <p class="mt-1 text-xs text-red-500">Campo obrigatório</p>
+                }
+              </div>
+              <div>
+                <label class="mb-1.5 block text-xs font-medium text-zinc-700">Complemento</label>
+                <input
+                  formControlName="complement"
+                  type="text"
+                  placeholder="Apto 42"
+                  class="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10"
+                />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-xs font-medium text-zinc-700">Cidade *</label>
+                <input
+                  formControlName="city"
+                  type="text"
+                  placeholder="São Paulo"
+                  [class]="hasError('city')
+                    ? 'w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-400/20'
+                    : 'w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10'"
+                />
+                @if (hasError('city')) {
+                  <p class="mt-1 text-xs text-red-500">Campo obrigatório</p>
+                }
+              </div>
+              <div>
+                <label class="mb-1.5 block text-xs font-medium text-zinc-700">Estado *</label>
+                <select
+                  formControlName="state"
+                  [class]="hasError('state')
+                    ? 'w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2.5 text-sm text-zinc-900 focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-400/20'
+                    : 'w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10'"
+                >
+                  <option value="">Selecione</option>
+                  @for (uf of ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO']; track uf) {
+                    <option [value]="uf">{{ uf }}</option>
+                  }
+                </select>
+                @if (hasError('state')) {
+                  <p class="mt-1 text-xs text-red-500">Campo obrigatório</p>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment -->
+          <div class="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm">
+            <h2 class="mb-4 text-sm font-semibold text-zinc-900">Forma de pagamento</h2>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3" formGroupName="">
+              @for (method of [{id:'pix',label:'PIX',desc:'Aprovação imediata',icon:'⚡'},{id:'boleto',label:'Boleto',desc:'Vence em 3 dias úteis',icon:'📄'},{id:'credit_card',label:'Cartão',desc:'Em até 12x sem juros',icon:'💳'}]; track method.id) {
+                <label
+                  [class]="form.get('paymentMethod')?.value === method.id
+                    ? 'flex cursor-pointer flex-col gap-1 rounded-xl border-2 border-zinc-900 bg-zinc-50 p-4 transition-colors'
+                    : 'flex cursor-pointer flex-col gap-1 rounded-xl border-2 border-zinc-200 bg-white p-4 transition-colors hover:border-zinc-300'"
+                >
+                  <input
+                    type="radio"
+                    formControlName="paymentMethod"
+                    [value]="method.id"
+                    class="sr-only"
+                  />
+                  <span class="text-xl">{{ method.icon }}</span>
+                  <span class="text-sm font-semibold text-zinc-900">{{ method.label }}</span>
+                  <span class="text-xs text-zinc-500">{{ method.desc }}</span>
+                </label>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Order summary -->
+        <div class="lg:col-span-1">
+          <div class="sticky top-6 rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm">
+            <h2 class="mb-4 text-sm font-semibold text-zinc-900">Resumo do pedido</h2>
+
+            <div class="space-y-3">
+              @for (item of store.cart(); track item.product.id) {
+                <div class="flex items-center gap-3">
+                  <img
+                    [src]="item.product.imageUrl"
+                    [alt]="item.product.name"
+                    class="h-12 w-12 rounded-lg object-cover bg-zinc-100 shrink-0"
+                  />
+                  <div class="flex-1 min-w-0">
+                    <p class="truncate text-xs font-medium text-zinc-900">{{ item.product.name }}</p>
+                    <p class="text-xs text-zinc-400">Qtd: {{ item.quantity }}</p>
+                  </div>
+                  <p class="shrink-0 text-xs font-semibold text-zinc-900">
+                    {{ store.formatPrice(item.product.price * item.quantity) }}
+                  </p>
+                </div>
+              }
+            </div>
+
+            <div class="mt-5 space-y-2 border-t border-zinc-100 pt-4">
+              <div class="flex justify-between text-sm text-zinc-600">
+                <span>Subtotal</span>
+                <span>{{ store.formatPrice(store.cartTotal()) }}</span>
+              </div>
+              <div class="flex justify-between text-sm text-zinc-600">
+                <span>Frete</span>
+                @if (shipping() === 0) {
+                  <span class="font-medium text-green-600">Grátis</span>
+                } @else {
+                  <span>{{ store.formatPrice(shipping()) }}</span>
+                }
+              </div>
+              <div class="flex justify-between border-t border-zinc-100 pt-2 text-base font-bold text-zinc-900">
+                <span>Total</span>
+                <span>{{ store.formatPrice(total()) }}</span>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="mt-5 w-full rounded-xl bg-zinc-900 py-3 text-sm font-semibold text-white transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Finalizar pedido
+            </button>
+            <p class="mt-3 text-center text-xs text-zinc-400">
+              Seus dados estão protegidos e criptografados.
+            </p>
+          </div>
+        </div>
+      </div>
+    </form>
+  }
+</div>

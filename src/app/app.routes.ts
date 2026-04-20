@@ -88,6 +88,37 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/catalog/brands/create-brand-page').then(m => m.CreateBrandPage),
       },
+      // ── Loja (e-commerce) ──────────────────────────────────────
+      {
+        path: 'loja',
+        redirectTo: 'loja/produtos',
+        pathMatch: 'full',
+      },
+      {
+        path: 'loja/produtos',
+        loadComponent: () =>
+          import('./features/ecommerce/products/products-page').then(m => m.ProductsPage),
+      },
+      {
+        path: 'loja/produtos/:id',
+        loadComponent: () =>
+          import('./features/ecommerce/product-detail/product-detail-page').then(m => m.ProductDetailPage),
+      },
+      {
+        path: 'loja/favoritos',
+        loadComponent: () =>
+          import('./features/ecommerce/favorites/favorites-page').then(m => m.FavoritesPage),
+      },
+      {
+        path: 'loja/carrinho',
+        loadComponent: () =>
+          import('./features/ecommerce/cart/cart-page').then(m => m.CartPage),
+      },
+      {
+        path: 'loja/checkout',
+        loadComponent: () =>
+          import('./features/ecommerce/checkout/checkout-page').then(m => m.CheckoutPage),
+      },
     ],
   },
 
