@@ -12,13 +12,14 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BrandItem, UpdateBrandRequest } from '../../../../core/models/catalog.model';
 import { Button } from '../../../../shared/components/button/button';
+import { ImageUploader } from '../../../../shared/components/image-uploader/image-uploader';
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 @Component({
   selector: 'app-edit-brand-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, Button],
+  imports: [ReactiveFormsModule, Button, ImageUploader],
   templateUrl: './edit-brand-form.html',
 })
 export class EditBrandForm implements OnInit {
@@ -71,6 +72,10 @@ export class EditBrandForm implements OnInit {
   protected readonly logoUrlError = computed(() =>
     this.fieldError('logo_url', ''),
   );
+
+  protected onLogoUploaded(url: string | null): void {
+    this.form.get('logo_url')?.setValue(url ?? '');
+  }
 
   protected generateSlug(): void {
     const name = this.form.get('name')?.value ?? '';

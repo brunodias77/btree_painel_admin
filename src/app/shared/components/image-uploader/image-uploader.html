@@ -1,0 +1,88 @@
+<div class="flex items-start gap-4">
+
+  <!-- Preview / placeholder -->
+  <div class="relative shrink-0">
+    @if (previewUrl()) {
+      <img
+        [src]="previewUrl()"
+        alt="Logo da marca"
+        class="h-20 w-20 rounded-xl object-cover ring-1 ring-zinc-200"
+      />
+      <!-- Botão remover -->
+      @if (!uploading()) {
+        <button
+          type="button"
+          (click)="remove()"
+          class="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center
+                 rounded-full bg-white ring-1 ring-zinc-200 text-zinc-500
+                 hover:bg-red-50 hover:text-red-500 hover:ring-red-200 transition-colors"
+          title="Remover imagem"
+        >
+          <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      }
+    } @else {
+      <!-- Placeholder -->
+      <div class="flex h-20 w-20 items-center justify-center rounded-xl border-2 border-dashed border-zinc-200 bg-zinc-50">
+        @if (uploading()) {
+          <!-- Spinner -->
+          <svg class="h-5 w-5 animate-spin text-zinc-400" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+          </svg>
+        } @else {
+          <svg class="h-6 w-6 text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Ações e info -->
+  <div class="min-w-0 flex-1 pt-1">
+    <p class="text-sm font-medium text-zinc-700">Logo da marca</p>
+    <p class="mt-0.5 text-xs text-zinc-400">JPEG, PNG, WebP, GIF ou SVG — máx. 10 MB</p>
+
+    @if (error()) {
+      <p class="mt-2 text-xs text-red-600">{{ error() }}</p>
+    }
+
+    <button
+      type="button"
+      (click)="openPicker()"
+      [disabled]="uploading()"
+      class="mt-2.5 inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5
+             text-xs font-medium text-zinc-600 transition-colors
+             hover:bg-zinc-50 hover:border-zinc-400
+             disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      @if (uploading()) {
+        <svg class="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+        </svg>
+        Enviando…
+      } @else {
+        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+        </svg>
+        {{ previewUrl() ? 'Trocar imagem' : 'Fazer upload' }}
+      }
+    </button>
+  </div>
+
+</div>
+
+<!-- Input file oculto -->
+<input
+  #fileInput
+  type="file"
+  accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+  class="hidden"
+  (change)="onFileSelected($event)"
+/>
