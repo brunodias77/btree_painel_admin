@@ -1,0 +1,363 @@
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-5">
+
+  <!-- Nome -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-700 mb-1">
+      Nome <span class="text-red-500">*</span>
+    </label>
+    <input
+      formControlName="name"
+      type="text"
+      placeholder="Ex: Camiseta Básica Algodão"
+      class="w-full rounded-lg border px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+             focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+      [class.border-red-400]="nameError()"
+      [class.border-zinc-300]="!nameError()"
+    />
+    @if (nameError()) {
+      <p class="mt-1 text-xs text-red-600">{{ nameError() }}</p>
+    }
+  </div>
+
+  <!-- Slug -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-700 mb-1">
+      Slug <span class="text-red-500">*</span>
+      <span class="ml-1 text-zinc-400 font-normal">(kebab-case, único)</span>
+    </label>
+    <div class="flex gap-2">
+      <input
+        formControlName="slug"
+        type="text"
+        placeholder="ex: camiseta-basica-algodao"
+        class="flex-1 rounded-lg border px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+               focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+        [class.border-red-400]="slugError()"
+        [class.border-zinc-300]="!slugError()"
+      />
+      <button
+        type="button"
+        (click)="generateSlug()"
+        class="shrink-0 rounded-lg border border-zinc-300 px-3 py-2 text-xs font-medium text-zinc-600
+               hover:bg-zinc-100 hover:border-zinc-400 transition-colors"
+        title="Gerar slug a partir do nome"
+      >
+        Gerar
+      </button>
+    </div>
+    @if (slugError()) {
+      <p class="mt-1 text-xs text-red-600">{{ slugError() }}</p>
+    } @else {
+      <p class="mt-1 text-xs text-zinc-400">Use apenas letras minúsculas, números e hífens.</p>
+    }
+  </div>
+
+  <!-- SKU -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-700 mb-1">
+      SKU <span class="text-red-500">*</span>
+      <span class="ml-1 text-zinc-400 font-normal">(único)</span>
+    </label>
+    <input
+      formControlName="sku"
+      type="text"
+      placeholder="Ex: CAM-001_P_BRANCA"
+      (input)="normalizeSku()"
+      class="w-full rounded-lg border px-3 py-2 text-sm font-mono text-zinc-900 placeholder:text-zinc-400
+             focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+      [class.border-red-400]="skuError()"
+      [class.border-zinc-300]="!skuError()"
+    />
+    @if (skuError()) {
+      <p class="mt-1 text-xs text-red-600">{{ skuError() }}</p>
+    } @else {
+      <p class="mt-1 text-xs text-zinc-400">Letras maiúsculas, números, hífens e underscores.</p>
+    }
+  </div>
+
+  <!-- Categoria + Marca -->
+  <div class="grid grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-medium text-zinc-700 mb-1">
+        Categoria <span class="text-zinc-400 font-normal">(opcional)</span>
+      </label>
+      <select
+        formControlName="category_id"
+        class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900
+               focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent bg-white"
+      >
+        <option [value]="null">Sem categoria</option>
+        @for (cat of flatCategories(); track cat.id) {
+          <option [value]="cat.id">
+            {{ '—'.repeat(cat.depth) }}{{ cat.depth > 0 ? ' ' : '' }}{{ cat.label }}
+          </option>
+        }
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-zinc-700 mb-1">
+        Marca <span class="text-zinc-400 font-normal">(opcional)</span>
+      </label>
+      <select
+        formControlName="brand_id"
+        class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900
+               focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent bg-white"
+      >
+        <option [value]="null">Sem marca</option>
+        @for (brand of brands(); track brand.id) {
+          <option [value]="brand.id">{{ brand.name }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- Descrição curta -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-700 mb-1">
+      Descrição curta <span class="text-zinc-400 font-normal">(opcional)</span>
+    </label>
+    <input
+      formControlName="short_description"
+      type="text"
+      placeholder="Resumo exibido na listagem de produtos..."
+      class="w-full rounded-lg border px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+             focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+      [class.border-red-400]="shortDescError()"
+      [class.border-zinc-300]="!shortDescError()"
+    />
+    @if (shortDescError()) {
+      <p class="mt-1 text-xs text-red-600">{{ shortDescError() }}</p>
+    } @else {
+      <p class="mt-1 text-xs text-zinc-400">Máximo 500 caracteres.</p>
+    }
+  </div>
+
+  <!-- Descrição completa -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-700 mb-1">
+      Descrição completa <span class="text-zinc-400 font-normal">(opcional)</span>
+    </label>
+    <textarea
+      formControlName="description"
+      rows="4"
+      placeholder="Detalhes completos do produto..."
+      class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+             focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent resize-none"
+    ></textarea>
+  </div>
+
+  <!-- Preço de venda -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-700 mb-1">
+      Preço de venda <span class="text-red-500">*</span>
+    </label>
+    <div class="relative">
+      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none select-none">R$</span>
+      <input
+        formControlName="price"
+        type="number"
+        min="0"
+        step="0.01"
+        placeholder="0,00"
+        class="w-full rounded-lg border pl-9 pr-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+               focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+        [class.border-red-400]="priceError()"
+        [class.border-zinc-300]="!priceError()"
+      />
+    </div>
+    @if (priceError()) {
+      <p class="mt-1 text-xs text-red-600">{{ priceError() }}</p>
+    }
+  </div>
+
+  <!-- Preço "de" + Preço de custo -->
+  <div class="grid grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-medium text-zinc-700 mb-1">
+        Preço <span class="italic text-zinc-500">"de"</span>
+        <span class="ml-1 text-zinc-400 font-normal">(opcional)</span>
+      </label>
+      <div class="relative">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none select-none">R$</span>
+        <input
+          formControlName="compare_at_price"
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="0,00"
+          class="w-full rounded-lg border border-zinc-300 pl-9 pr-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+                 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+        />
+      </div>
+      <p class="mt-1 text-xs text-zinc-400">Exibido riscado como preço original.</p>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-zinc-700 mb-1">
+        Preço de custo <span class="text-zinc-400 font-normal">(opcional)</span>
+      </label>
+      <div class="relative">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none select-none">R$</span>
+        <input
+          formControlName="cost_price"
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="0,00"
+          class="w-full rounded-lg border border-zinc-300 pl-9 pr-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+                 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+        />
+      </div>
+      <p class="mt-1 text-xs text-zinc-400">Não exibido ao cliente.</p>
+    </div>
+  </div>
+
+  <!-- Alerta de estoque baixo -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-700 mb-1">
+      Alerta de estoque baixo
+    </label>
+    <input
+      formControlName="low_stock_threshold"
+      type="number"
+      min="0"
+      step="1"
+      class="w-28 rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900
+             focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+    />
+    <p class="mt-1 text-xs text-zinc-400">Notificar quando o estoque atingir este valor.</p>
+  </div>
+
+  <!-- Dimensões -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-700 mb-2">
+      Dimensões <span class="text-zinc-400 font-normal">(opcional)</span>
+    </label>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-xs text-zinc-500 mb-1">Peso (kg)</label>
+        <input
+          formControlName="weight"
+          type="number" min="0" step="0.001" placeholder="0,000"
+          class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+                 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+        />
+      </div>
+      <div>
+        <label class="block text-xs text-zinc-500 mb-1">Largura (cm)</label>
+        <input
+          formControlName="width"
+          type="number" min="0" step="0.01" placeholder="0,00"
+          class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+                 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+        />
+      </div>
+      <div>
+        <label class="block text-xs text-zinc-500 mb-1">Altura (cm)</label>
+        <input
+          formControlName="height"
+          type="number" min="0" step="0.01" placeholder="0,00"
+          class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+                 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+        />
+      </div>
+      <div>
+        <label class="block text-xs text-zinc-500 mb-1">Profundidade (cm)</label>
+        <input
+          formControlName="depth"
+          type="number" min="0" step="0.01" placeholder="0,00"
+          class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+                 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Imagens -->
+  <div>
+    <div class="flex items-center justify-between mb-3">
+      <label class="block text-sm font-medium text-zinc-700">
+        Imagens <span class="text-zinc-400 font-normal">(opcional)</span>
+      </label>
+      <button
+        type="button"
+        (click)="addImage()"
+        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5 text-xs
+               font-medium text-zinc-600 hover:bg-zinc-50 hover:border-zinc-400 transition-colors"
+      >
+        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Adicionar imagem
+      </button>
+    </div>
+
+    @if (images().length === 0) {
+      <p class="text-xs text-zinc-400">Nenhuma imagem adicionada. O produto será criado sem imagens.</p>
+    }
+
+    <div class="space-y-3">
+      @for (img of images(); track img.id; let i = $index) {
+        <div class="rounded-xl border border-zinc-200 p-4 space-y-3">
+
+          <!-- Header da entrada -->
+          <div class="flex items-center justify-between">
+            @if (i === 0) {
+              <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700">
+                Principal
+              </span>
+            } @else {
+              <span class="text-xs text-zinc-400">Imagem {{ i + 1 }}</span>
+            }
+            <button
+              type="button"
+              (click)="removeImage(i)"
+              class="rounded-lg p-1 text-zinc-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+              title="Remover imagem"
+            >
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Uploader -->
+          <app-image-uploader
+            (urlChange)="setImageUrl(i, $event)"
+          />
+
+          <!-- Texto alternativo -->
+          <div>
+            <label class="block text-xs font-medium text-zinc-600 mb-1">
+              Texto alternativo <span class="text-zinc-400">(opcional)</span>
+            </label>
+            <input
+              type="text"
+              [value]="img.alt_text"
+              (input)="setImageAltText(i, $event)"
+              placeholder="Descrição da imagem para acessibilidade..."
+              class="w-full rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-900 placeholder:text-zinc-400
+                     focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+            />
+          </div>
+
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Ações -->
+  <div class="flex items-center justify-end gap-3 pt-2">
+    <button
+      type="button"
+      (click)="cancel()"
+      class="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600
+             hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
+    >
+      Cancelar
+    </button>
+    <app-button type="submit" [loading]="submitting()">
+      Criar produto
+    </app-button>
+  </div>
+
+</form>

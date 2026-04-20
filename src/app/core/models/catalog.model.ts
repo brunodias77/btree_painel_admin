@@ -77,3 +77,92 @@ export interface CategoryItem {
   updated_at: string;
   children: CategoryItem[];
 }
+
+export type ProductStatus =
+  | 'DRAFT'
+  | 'ACTIVE'
+  | 'INACTIVE'
+  | 'PAUSED'
+  | 'OUT_OF_STOCK'
+  | 'DISCONTINUED'
+  | 'ARCHIVED';
+
+export interface ProductItem {
+  id: string;
+  name: string;
+  slug: string;
+  short_description: string | null;
+  sku: string;
+  price: number;
+  compare_at_price: number | null;
+  status: ProductStatus;
+  featured: boolean;
+  primary_image_url: string | null;
+}
+
+export interface ProductListResponse {
+  items: ProductItem[];
+  page: number;
+  size: number;
+  total_elements: number;
+  total_pages: number;
+}
+
+export interface ProductImageEntry {
+  url: string;
+  alt_text?: string | null;
+  sort_order: number;
+  primary: boolean;
+}
+
+export interface CreateProductRequest {
+  category_id?: string | null;
+  brand_id?: string | null;
+  name: string;
+  slug: string;
+  description?: string | null;
+  short_description?: string | null;
+  sku: string;
+  price: number;
+  compare_at_price?: number | null;
+  cost_price?: number | null;
+  low_stock_threshold: number;
+  weight?: number | null;
+  width?: number | null;
+  height?: number | null;
+  depth?: number | null;
+  images: ProductImageEntry[];
+}
+
+export interface ProductImageOutput {
+  id: string;
+  url: string;
+  alt_text: string | null;
+  sort_order: number;
+  primary: boolean;
+}
+
+export interface CreateProductResponse {
+  id: string;
+  category_id: string | null;
+  brand_id: string | null;
+  name: string;
+  slug: string;
+  description: string | null;
+  short_description: string | null;
+  sku: string;
+  price: number;
+  compare_at_price: number | null;
+  cost_price: number | null;
+  quantity: number;
+  low_stock_threshold: number;
+  weight: number | null;
+  width: number | null;
+  height: number | null;
+  depth: number | null;
+  status: ProductStatus;
+  featured: boolean;
+  images: ProductImageOutput[];
+  created_at: string;
+  updated_at: string;
+}

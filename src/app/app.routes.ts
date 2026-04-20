@@ -74,6 +74,16 @@ export const routes: Routes = [
           import('./features/catalog/categories/create-category-page').then(m => m.CreateCategoryPage),
       },
       {
+        path: 'catalog/products',
+        loadComponent: () =>
+          import('./features/catalog/products/product-list-page').then(m => m.ProductListPage),
+      },
+      {
+        path: 'catalog/products/create',
+        loadComponent: () =>
+          import('./features/catalog/products/create-product-page').then(m => m.CreateProductPage),
+      },
+      {
         path: 'catalog/brands',
         loadComponent: () =>
           import('./features/catalog/brands/brand-list-page').then(m => m.BrandListPage),
