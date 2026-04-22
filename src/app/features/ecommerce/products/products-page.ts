@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  OnInit,
   computed,
   inject,
   signal,
@@ -14,39 +15,33 @@ import { EcommerceService } from '../../../core/services/ecommerce.service';
   imports: [RouterLink],
   templateUrl: './products-page.html',
 })
-export class ProductsPage {
+export class ProductsPage implements OnInit {
   protected readonly store = inject(EcommerceService);
 
   protected readonly search = signal('');
-  protected readonly selectedCategory = signal<string | null>(null);
-
-  protected readonly categories = computed(() => {
-    const cats = new Set(this.store.products.map(p => p.category));
-    return ['Todos', ...Array.from(cats)];
-  });
 
   protected readonly filtered = computed(() => {
     const q = this.search().toLowerCase();
-    const cat = this.selectedCategory();
-    return this.store.products.filter(p => {
-      const matchesSearch =
-        !q ||
+    if (!q) return this.store.products();
+    return this.store.products().filter(
+      p =>
         p.name.toLowerCase().includes(q) ||
-        p.brand.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q);
-      const matchesCategory = !cat || p.category === cat;
-      return matchesSearch && matchesCategory;
-    });
+        p.description.toLowerCase().includes(q),
+    );
   });
 
-  protected readonly stars = [1, 2, 3, 4, 5];
-  protected readonly Math = Math;
+  protected readonly skeletons = Array(8);
+
+  ngOnInit(): void {
+    this.store.loadInitial();
+  }
 
   protected onSearch(event: Event): void {
     this.search.set((event.target as HTMLInputElement).value);
   }
 
-  protected selectCategory(cat: string): void {
-    this.selectedCategory.set(cat === 'Todos' ? null : cat);
+  protected selectCategory(categoryId: string | null): void {
+    this.search.set('');
+    this.store.filterByCategory(categoryId);
   }
 }

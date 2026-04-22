@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CreateProductRequest, CreateProductResponse, ProductListResponse } from '../models/catalog.model';
+import { AdjustStockRequest, AdjustStockResponse, CreateProductRequest, CreateProductResponse, ProductDetail, ProductListResponse, StockMovementsResponse, UpdateProductRequest } from '../models/catalog.model';
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
@@ -29,6 +29,73 @@ export class ProductService {
     }
   }
 
+  async update(id: string, request: UpdateProductRequest): Promise<ProductDetail> {
+    this._loading.set(true);
+    this._serverErrors.set([]);
+    try {
+      return await firstValueFrom(
+        this.http.patch<ProductDetail>(`${environment.apiBaseUrl}/v1/catalog/products/${id}`, request),
+      );
+    } catch (err: unknown) {
+      this._serverErrors.set(extractErrors(err));
+      throw err;
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  async getById(id: string): Promise<ProductDetail> {
+    this._loading.set(true);
+    this._serverErrors.set([]);
+    try {
+      return await firstValueFrom(
+        this.http.get<ProductDetail>(`${environment.apiBaseUrl}/v1/catalog/products/${id}`),
+      );
+    } catch (err: unknown) {
+      this._serverErrors.set(extractErrors(err));
+      throw err;
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  async adjustStock(productId: string, request: AdjustStockRequest): Promise<AdjustStockResponse> {
+    this._loading.set(true);
+    this._serverErrors.set([]);
+    try {
+      return await firstValueFrom(
+        this.http.post<AdjustStockResponse>(
+          `${environment.apiBaseUrl}/v1/catalog/products/${productId}/stock/adjustments`,
+          request,
+        ),
+      );
+    } catch (err: unknown) {
+      this._serverErrors.set(extractErrors(err));
+      throw err;
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  async listStockMovements(productId: string, page = 0, size = 20): Promise<StockMovementsResponse> {
+    this._loading.set(true);
+    this._serverErrors.set([]);
+    try {
+      const params = new HttpParams().set('page', page).set('size', size);
+      return await firstValueFrom(
+        this.http.get<StockMovementsResponse>(
+          `${environment.apiBaseUrl}/v1/catalog/products/${productId}/stock/movements`,
+          { params },
+        ),
+      );
+    } catch (err: unknown) {
+      this._serverErrors.set(extractErrors(err));
+      throw err;
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
   async listAll(page = 0, size = 20): Promise<ProductListResponse> {
     this._loading.set(true);
     this._serverErrors.set([]);
@@ -36,6 +103,25 @@ export class ProductService {
       const params = new HttpParams().set('page', page).set('size', size);
       return await firstValueFrom(
         this.http.get<ProductListResponse>(`${environment.apiBaseUrl}/v1/catalog/products`, { params }),
+      );
+    } catch (err: unknown) {
+      this._serverErrors.set(extractErrors(err));
+      throw err;
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  async listByCategory(categoryId: string, page = 0, size = 20): Promise<ProductListResponse> {
+    this._loading.set(true);
+    this._serverErrors.set([]);
+    try {
+      const params = new HttpParams().set('page', page).set('size', size);
+      return await firstValueFrom(
+        this.http.get<ProductListResponse>(
+          `${environment.apiBaseUrl}/v1/catalog/products/by-category/${categoryId}`,
+          { params },
+        ),
       );
     } catch (err: unknown) {
       this._serverErrors.set(extractErrors(err));

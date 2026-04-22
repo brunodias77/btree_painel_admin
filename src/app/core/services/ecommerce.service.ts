@@ -1,249 +1,34 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { CartItem, Product } from '../models/ecommerce.model';
-
-const MOCK_PRODUCTS: Product[] = [
-  {
-    id: '1',
-    name: 'Tênis Running Pro X',
-    slug: 'tenis-running-pro-x',
-    description:
-      'Tênis de corrida de alta performance com tecnologia de amortecimento avançada e solado de borracha antiderrapante. Ideal para corridas de longa distância com máximo conforto e suporte ao arco do pé.',
-    price: 299.9,
-    originalPrice: 399.9,
-    imageUrl: 'https://picsum.photos/seed/shoe1/600/600',
-    images: [
-      'https://picsum.photos/seed/shoe1/600/600',
-      'https://picsum.photos/seed/shoe1b/600/600',
-      'https://picsum.photos/seed/shoe1c/600/600',
-    ],
-    category: 'Calçados',
-    brand: 'SpeedRun',
-    rating: 4.7,
-    reviewCount: 128,
-    stock: 15,
-    tags: ['corrida', 'esporte', 'masculino'],
-  },
-  {
-    id: '2',
-    name: 'Sapatênis Casual Urban',
-    slug: 'sapatenis-casual-urban',
-    description:
-      'Sapatênis casual com design urbano moderno. Combina estilo e conforto para o dia a dia, com solado flexível e cabedal em couro sintético de alta qualidade.',
-    price: 189.9,
-    imageUrl: 'https://picsum.photos/seed/shoe2/600/600',
-    images: [
-      'https://picsum.photos/seed/shoe2/600/600',
-      'https://picsum.photos/seed/shoe2b/600/600',
-    ],
-    category: 'Calçados',
-    brand: 'UrbanStep',
-    rating: 4.3,
-    reviewCount: 87,
-    stock: 22,
-    tags: ['casual', 'urbano', 'unissex'],
-  },
-  {
-    id: '3',
-    name: 'Chinelo Sport Slide',
-    slug: 'chinelo-sport-slide',
-    description:
-      'Chinelo slide esportivo com tira anatômica e palmilha em EVA macio. Perfeito para academia, praia e uso casual pós-treino.',
-    price: 79.9,
-    originalPrice: 99.9,
-    imageUrl: 'https://picsum.photos/seed/sandal3/600/600',
-    images: [
-      'https://picsum.photos/seed/sandal3/600/600',
-    ],
-    category: 'Calçados',
-    brand: 'SpeedRun',
-    rating: 4.5,
-    reviewCount: 214,
-    stock: 50,
-    tags: ['slide', 'esporte', 'praia'],
-  },
-  {
-    id: '4',
-    name: 'Fone Bluetooth Pro Elite',
-    slug: 'fone-bluetooth-pro-elite',
-    description:
-      'Fone de ouvido over-ear com cancelamento ativo de ruído e driver de 40mm. Bateria de 30h de duração, conexão Bluetooth 5.3 e qualidade de áudio Hi-Res certificada.',
-    price: 449.9,
-    originalPrice: 599.9,
-    imageUrl: 'https://picsum.photos/seed/headphone4/600/600',
-    images: [
-      'https://picsum.photos/seed/headphone4/600/600',
-      'https://picsum.photos/seed/headphone4b/600/600',
-    ],
-    category: 'Eletrônicos',
-    brand: 'SoundMax',
-    rating: 4.8,
-    reviewCount: 356,
-    stock: 8,
-    tags: ['audio', 'bluetooth', 'premium'],
-  },
-  {
-    id: '5',
-    name: 'Smartwatch Elite Series 3',
-    slug: 'smartwatch-elite-series-3',
-    description:
-      'Smartwatch com tela AMOLED 1.4", GPS integrado, monitor cardíaco 24h, SpO2 e mais de 100 modos esportivos. Resistente à água até 5ATM.',
-    price: 799.9,
-    originalPrice: 999.9,
-    imageUrl: 'https://picsum.photos/seed/watch5/600/600',
-    images: [
-      'https://picsum.photos/seed/watch5/600/600',
-      'https://picsum.photos/seed/watch5b/600/600',
-    ],
-    category: 'Eletrônicos',
-    brand: 'TechWear',
-    rating: 4.6,
-    reviewCount: 193,
-    stock: 12,
-    tags: ['smartwatch', 'fitness', 'gps'],
-  },
-  {
-    id: '6',
-    name: 'Caixa de Som Portátil 360°',
-    slug: 'caixa-de-som-portatil-360',
-    description:
-      'Caixa de som portátil com som 360° e graves potentes. Bluetooth 5.0, IPX7 à prova d\'água, 20h de bateria e entrada USB-C para carregamento rápido.',
-    price: 259.9,
-    imageUrl: 'https://picsum.photos/seed/speaker6/600/600',
-    images: [
-      'https://picsum.photos/seed/speaker6/600/600',
-    ],
-    category: 'Eletrônicos',
-    brand: 'SoundMax',
-    rating: 4.4,
-    reviewCount: 142,
-    stock: 30,
-    tags: ['caixa-de-som', 'portatil', 'bluetooth'],
-  },
-  {
-    id: '7',
-    name: 'Camiseta Dry-Fit Performance',
-    slug: 'camiseta-dry-fit-performance',
-    description:
-      'Camiseta esportiva com tecido dry-fit de secagem rápida e proteção UV 50+. Corte ergonômico para máxima mobilidade durante treinos intensos.',
-    price: 59.9,
-    originalPrice: 79.9,
-    imageUrl: 'https://picsum.photos/seed/shirt7/600/600',
-    images: [
-      'https://picsum.photos/seed/shirt7/600/600',
-      'https://picsum.photos/seed/shirt7b/600/600',
-    ],
-    category: 'Roupas',
-    brand: 'AthleteWear',
-    rating: 4.5,
-    reviewCount: 312,
-    stock: 100,
-    tags: ['camiseta', 'treino', 'dry-fit'],
-  },
-  {
-    id: '8',
-    name: 'Moletom Urban Hoodie',
-    slug: 'moletom-urban-hoodie',
-    description:
-      'Moletom unissex com capuz em fleece de algodão premium. Bolso canguru, punhos e barra em ribana. Design oversized moderno para uso casual e esportivo.',
-    price: 149.9,
-    originalPrice: 199.9,
-    imageUrl: 'https://picsum.photos/seed/hoodie8/600/600',
-    images: [
-      'https://picsum.photos/seed/hoodie8/600/600',
-    ],
-    category: 'Roupas',
-    brand: 'UrbanStep',
-    rating: 4.6,
-    reviewCount: 178,
-    stock: 45,
-    tags: ['moletom', 'casual', 'unissex'],
-  },
-  {
-    id: '9',
-    name: 'Shorts Treino Pro 2 em 1',
-    slug: 'shorts-treino-pro-2-em-1',
-    description:
-      'Shorts de treino com bermuda externa e compressor interno. Tecido leve e respirável, bolsos laterais com zíper e elástico com regulagem.',
-    price: 89.9,
-    imageUrl: 'https://picsum.photos/seed/shorts9/600/600',
-    images: [
-      'https://picsum.photos/seed/shorts9/600/600',
-    ],
-    category: 'Roupas',
-    brand: 'AthleteWear',
-    rating: 4.3,
-    reviewCount: 96,
-    stock: 60,
-    tags: ['shorts', 'treino', 'academia'],
-  },
-  {
-    id: '10',
-    name: 'Mochila Sport Ultralight 30L',
-    slug: 'mochila-sport-ultralight-30l',
-    description:
-      'Mochila esportiva de 30 litros com material resistente à água, alças acolchoadas, compartimento para laptop 15", saída para headphone e refletor de segurança.',
-    price: 199.9,
-    originalPrice: 249.9,
-    imageUrl: 'https://picsum.photos/seed/bag10/600/600',
-    images: [
-      'https://picsum.photos/seed/bag10/600/600',
-      'https://picsum.photos/seed/bag10b/600/600',
-    ],
-    category: 'Acessórios',
-    brand: 'TrailGear',
-    rating: 4.7,
-    reviewCount: 241,
-    stock: 18,
-    tags: ['mochila', 'esporte', 'viagem'],
-  },
-  {
-    id: '11',
-    name: 'Óculos Esportivo Polarizado',
-    slug: 'oculos-esportivo-polarizado',
-    description:
-      'Óculos esportivo com lentes polarizadas e proteção UV400. Armação em TR90 ultraleve e flexível, hastes ajustáveis e nose pad ergonômico.',
-    price: 129.9,
-    originalPrice: 169.9,
-    imageUrl: 'https://picsum.photos/seed/glasses11/600/600',
-    images: [
-      'https://picsum.photos/seed/glasses11/600/600',
-    ],
-    category: 'Acessórios',
-    brand: 'VisionSport',
-    rating: 4.4,
-    reviewCount: 73,
-    stock: 25,
-    tags: ['oculos', 'esporte', 'polarizado'],
-  },
-  {
-    id: '12',
-    name: 'Boné Snapback Classic',
-    slug: 'bone-snapback-classic',
-    description:
-      'Boné snapback com aba plana e fechamento ajustável. Bordado em relevo na frente, interior em moletinho macio e viseira em material antisuor.',
-    price: 49.9,
-    imageUrl: 'https://picsum.photos/seed/cap12/600/600',
-    images: [
-      'https://picsum.photos/seed/cap12/600/600',
-    ],
-    category: 'Acessórios',
-    brand: 'UrbanStep',
-    rating: 4.2,
-    reviewCount: 58,
-    stock: 80,
-    tags: ['bone', 'casual', 'unissex'],
-  },
-];
+import { CategoryItem, ProductItem } from '../models/catalog.model';
+import { ProductService } from './product.service';
+import { CategoryService } from './category.service';
 
 @Injectable({ providedIn: 'root' })
 export class EcommerceService {
+  private readonly productService = inject(ProductService);
+  private readonly categoryService = inject(CategoryService);
+
   private readonly _cart = signal<CartItem[]>([]);
   private readonly _favorites = signal<Set<string>>(new Set());
-
-  readonly products = MOCK_PRODUCTS;
+  private readonly _apiProducts = signal<Product[]>([]);
+  private readonly _categories = signal<CategoryItem[]>([]);
+  private readonly _loadingProducts = signal(false);
+  private readonly _currentPage = signal(0);
+  private readonly _totalPages = signal(1);
+  private readonly _selectedCategoryId = signal<string | null>(null);
+  private _initialized = false;
 
   readonly cart = this._cart.asReadonly();
   readonly favorites = this._favorites.asReadonly();
+  readonly products = this._apiProducts.asReadonly();
+  readonly categories = this._categories.asReadonly();
+  readonly loadingProducts = this._loadingProducts.asReadonly();
+  readonly selectedCategoryId = this._selectedCategoryId.asReadonly();
+
+  readonly hasMore = computed(
+    () => this._currentPage() < this._totalPages() - 1,
+  );
 
   readonly cartCount = computed(() =>
     this._cart().reduce((sum, item) => sum + item.quantity, 0),
@@ -255,8 +40,73 @@ export class EcommerceService {
 
   readonly favoriteProducts = computed(() => {
     const favIds = this._favorites();
-    return MOCK_PRODUCTS.filter(p => favIds.has(p.id));
+    return this._apiProducts().filter(p => favIds.has(p.id));
   });
+
+  async loadInitial(): Promise<void> {
+    if (this._initialized) return;
+    this._initialized = true;
+
+    try {
+      const cats = await this.categoryService.listAll();
+      this._categories.set(cats);
+    } catch { /* ignore */ }
+
+    await this._loadPage(0, null);
+  }
+
+  async filterByCategory(categoryId: string | null): Promise<void> {
+    if (this._selectedCategoryId() === categoryId) return;
+    this._selectedCategoryId.set(categoryId);
+    this._apiProducts.set([]);
+    await this._loadPage(0, categoryId);
+  }
+
+  async loadMore(): Promise<void> {
+    const next = this._currentPage() + 1;
+    if (next >= this._totalPages()) return;
+    await this._loadPage(next, this._selectedCategoryId());
+  }
+
+  private async _loadPage(page: number, categoryId: string | null): Promise<void> {
+    this._loadingProducts.set(true);
+    try {
+      const response = categoryId
+        ? await this.productService.listByCategory(categoryId, page, 20)
+        : await this.productService.listAll(page, 20);
+
+      const mapped = response.items.map(item => this._mapProduct(item));
+      if (page === 0) {
+        this._apiProducts.set(mapped);
+      } else {
+        this._apiProducts.update(prev => [...prev, ...mapped]);
+      }
+      this._currentPage.set(page);
+      this._totalPages.set(response.total_pages);
+    } catch { /* ignore */ } finally {
+      this._loadingProducts.set(false);
+    }
+  }
+
+  private _mapProduct(item: ProductItem): Product {
+    return {
+      id: item.id,
+      name: item.name,
+      slug: item.slug,
+      description: item.short_description ?? '',
+      price: Number(item.price),
+      originalPrice: item.compare_at_price != null ? Number(item.compare_at_price) : undefined,
+      imageUrl: item.primary_image_url ?? `https://picsum.photos/seed/${item.id}/600/600`,
+      images: item.primary_image_url ? [item.primary_image_url] : [],
+      category: '',
+      brand: '',
+      rating: 0,
+      reviewCount: 0,
+      stock: item.status === 'OUT_OF_STOCK' ? 0 : 1,
+      tags: [],
+      status: item.status,
+    };
+  }
 
   isFavorite(id: string): boolean {
     return this._favorites().has(id);
@@ -304,7 +154,7 @@ export class EcommerceService {
   }
 
   getProductById(id: string): Product | undefined {
-    return MOCK_PRODUCTS.find(p => p.id === id);
+    return this._apiProducts().find(p => p.id === id);
   }
 
   formatPrice(price: number): string {

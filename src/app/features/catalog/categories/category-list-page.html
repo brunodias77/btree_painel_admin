@@ -75,6 +75,7 @@
                 <th class="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">Slug</th>
                 <th class="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 hidden sm:table-cell">Descrição</th>
                 <th class="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">Status</th>
+                <th class="px-6 py-3.5"></th>
               </tr>
             </thead>
             <tbody class="divide-y divide-zinc-100">
@@ -130,8 +131,23 @@
                     } @else {
                       <span class="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-500 ring-1 ring-zinc-500/20">
                         Inativa
-      </span>
+                      </span>
                     }
+                  </td>
+
+                  <!-- Ações -->
+                  <td class="px-6 py-3 text-right">
+                    <a
+                      [routerLink]="['/catalog/categories', cat.id, 'edit']"
+                      class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5
+                             text-xs font-medium text-zinc-700 hover:bg-zinc-50 hover:border-zinc-400 transition-colors"
+                    >
+                      <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                      </svg>
+                      Editar
+                    </a>
                   </td>
 
                 </tr>

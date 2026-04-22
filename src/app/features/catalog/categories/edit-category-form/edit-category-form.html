@@ -1,0 +1,134 @@
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-5">
+
+  <!-- Categoria pai -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-700 mb-1">
+      Categoria pai <span class="text-zinc-400 font-normal">(opcional)</span>
+    </label>
+    <select
+      formControlName="parent_id"
+      class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900
+             focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent bg-white"
+    >
+      <option [value]="null">Nenhuma (categoria raiz)</option>
+      @for (cat of flatCategories(); track cat.id) {
+        <option [value]="cat.id">
+          {{ '—'.repeat(cat.depth) }}{{ cat.depth > 0 ? ' ' : '' }}{{ cat.label }}
+        </option>
+      }
+    </select>
+    <p class="mt-1 text-xs text-zinc-400">A própria categoria não aparece na lista para evitar referência circular.</p>
+  </div>
+
+  <!-- Nome -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-700 mb-1">
+      Nome <span class="text-red-500">*</span>
+    </label>
+    <input
+      formControlName="name"
+      type="text"
+      placeholder="Ex: Esportes, Moda, Eletrônicos"
+      class="w-full rounded-lg border px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+             focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+      [class.border-red-400]="nameError()"
+      [class.border-zinc-300]="!nameError()"
+    />
+    @if (nameError()) {
+      <p class="mt-1 text-xs text-red-600">{{ nameError() }}</p>
+    }
+  </div>
+
+  <!-- Slug -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-700 mb-1">
+      Slug <span class="text-red-500">*</span>
+      <span class="ml-1 text-zinc-400 font-normal">(kebab-case, único)</span>
+    </label>
+    <div class="flex gap-2">
+      <input
+        formControlName="slug"
+        type="text"
+        placeholder="ex: minha-categoria"
+        class="flex-1 rounded-lg border px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+               focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+        [class.border-red-400]="slugError()"
+        [class.border-zinc-300]="!slugError()"
+      />
+      <button
+        type="button"
+        (click)="generateSlug()"
+        class="shrink-0 rounded-lg border border-zinc-300 px-3 py-2 text-xs font-medium text-zinc-600
+               hover:bg-zinc-100 hover:border-zinc-400 transition-colors"
+        title="Gerar slug a partir do nome"
+      >
+        Gerar
+      </button>
+    </div>
+    @if (slugError()) {
+      <p class="mt-1 text-xs text-red-600">{{ slugError() }}</p>
+    } @else {
+      <p class="mt-1 text-xs text-zinc-400">Use apenas letras minúsculas, números e hífens.</p>
+    }
+  </div>
+
+  <!-- Descrição -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-700 mb-1">
+      Descrição <span class="text-zinc-400 font-normal">(opcional)</span>
+    </label>
+    <textarea
+      formControlName="description"
+      rows="3"
+      placeholder="Breve descrição da categoria..."
+      class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+             focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent resize-none"
+    ></textarea>
+  </div>
+
+  <!-- Imagem -->
+  <div>
+    <app-image-uploader
+      [initialUrl]="currentImageUrl()"
+      (urlChange)="onImageUploaded($event)"
+    />
+  </div>
+
+  <!-- Ordem -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-700 mb-1">
+      Ordem de exibição
+    </label>
+    <input
+      formControlName="sort_order"
+      type="number"
+      min="0"
+      placeholder="0"
+      class="w-28 rounded-lg border px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400
+             focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
+      [class.border-red-400]="sortOrderError()"
+      [class.border-zinc-300]="!sortOrderError()"
+    />
+    @if (sortOrderError()) {
+      <p class="mt-1 text-xs text-red-600">{{ sortOrderError() }}</p>
+    } @else {
+      <p class="mt-1 text-xs text-zinc-400">Menor número aparece primeiro dentro do mesmo nível.</p>
+    }
+  </div>
+
+  <!-- Ações -->
+  <div class="flex items-center justify-end gap-3 pt-2">
+    <button
+      type="button"
+      (click)="cancel()"
+      class="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600
+             hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
+    >
+      Cancelar
+    </button>
+    <app-button type="submit" [loading]="submitting()">
+      Salvar alterações
+    </app-button>
+  </div>
+
+</form>

@@ -272,156 +272,31 @@
     </div>
   </div>
 
-  <!-- Imagens -->
-  <div>
-    <div class="flex items-center justify-between mb-3">
-      <div>
-        <label class="block text-sm font-medium text-zinc-700">
-          Imagens <span class="text-zinc-400 font-normal">(opcional)</span>
-        </label>
-        <p class="text-xs text-zinc-400">
-          {{ images().length }}/{{ 10 }} · JPEG, PNG, WebP, GIF, SVG · máx. 10 MB cada
-        </p>
-      </div>
-      <button
-        type="button"
-        (click)="openImagePicker()"
-        [disabled]="imagesAtLimit() || multiUploading()"
-        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5 text-xs
-               font-medium text-zinc-600 hover:bg-zinc-50 hover:border-zinc-400 transition-colors
-               disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        @if (multiUploading()) {
-          <svg class="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
-          </svg>
-          Enviando…
-        } @else {
-          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
-          Adicionar imagens
-        }
-      </button>
-    </div>
-
-    <!-- Input oculto para seleção múltipla -->
+  <!-- Destaque -->
+  <div class="flex items-start gap-3 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3">
     <input
-      #multiFileInput
-      type="file"
-      accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
-      multiple
-      class="hidden"
-      (change)="onFilesSelected($event)"
+      formControlName="featured"
+      id="featured"
+      type="checkbox"
+      class="mt-0.5 h-4 w-4 rounded border-zinc-300 text-zinc-900 accent-zinc-900 cursor-pointer"
     />
-
-    @if (multiUploadError()) {
-      <p class="mb-3 text-xs text-red-600">{{ multiUploadError() }}</p>
-    }
-
-    @if (images().length === 0 && !multiUploading()) {
-      <p class="text-xs text-zinc-400">Nenhuma imagem adicionada. O produto será criado sem imagens.</p>
-    }
-
-    <div class="space-y-3">
-      @for (img of images(); track img.id; let i = $index; let last = $last) {
-        <div class="rounded-xl border border-zinc-200 p-4 space-y-3">
-
-          <!-- Header da entrada -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              @if (i === 0) {
-                <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700">
-                  Principal
-                </span>
-              } @else {
-                <span class="text-xs text-zinc-400">Imagem {{ i + 1 }}</span>
-              }
-              <!-- Reordenar -->
-              <div class="flex gap-0.5">
-                <button
-                  type="button"
-                  (click)="moveImageUp(i)"
-                  [disabled]="i === 0"
-                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  title="Mover para cima"
-                >
-                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  (click)="moveImageDown(i)"
-                  [disabled]="last"
-                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  title="Mover para baixo"
-                >
-                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <button
-              type="button"
-              (click)="removeImage(i)"
-              class="rounded-lg p-1 text-zinc-400 hover:bg-red-50 hover:text-red-500 transition-colors"
-              title="Remover imagem"
-            >
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </button>
-          </div>
-
-          <!-- Preview / Uploader -->
-          @if (img.url) {
-            <!-- Imagem já carregada: mostra preview + botão de substituição -->
-            <div class="relative overflow-hidden rounded-lg bg-zinc-50 border border-zinc-200">
-              <img
-                [src]="img.url"
-                alt="Preview"
-                class="h-40 w-full object-contain"
-              />
-              <button
-                type="button"
-                (click)="setImageUrl(i, null)"
-                class="absolute top-2 right-2 rounded-full bg-white/90 p-1 shadow text-zinc-500
-                       hover:text-red-500 hover:bg-red-50 transition-colors"
-                title="Remover imagem"
-              >
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-              </button>
-            </div>
-          } @else {
-            <!-- Sem URL ainda: mostra uploader para upload individual -->
-            <app-image-uploader
-              (urlChange)="setImageUrl(i, $event)"
-            />
-          }
-
-          <!-- Texto alternativo -->
-          <div>
-            <label class="block text-xs font-medium text-zinc-600 mb-1">
-              Texto alternativo <span class="text-zinc-400">(opcional)</span>
-            </label>
-            <input
-              type="text"
-              [value]="img.alt_text"
-              (input)="setImageAltText(i, $event)"
-              placeholder="Descrição da imagem para acessibilidade..."
-              class="w-full rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-900 placeholder:text-zinc-400
-                     focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
-            />
-          </div>
-
-        </div>
-      }
+    <div>
+      <label for="featured" class="block text-sm font-medium text-zinc-700 cursor-pointer">
+        Produto em destaque
+      </label>
+      <p class="text-xs text-zinc-400">Exibido em seções especiais da vitrine.</p>
     </div>
+  </div>
+
+  <!-- Nota sobre imagens -->
+  <div class="flex items-start gap-2.5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-blue-700">
+    <svg class="mt-0.5 h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <p class="text-xs leading-relaxed">
+      As imagens do produto são gerenciadas na <strong>página de detalhes</strong>. Salve as alterações aqui e acesse os detalhes para adicionar ou remover fotos.
+    </p>
   </div>
 
   <!-- Ações -->
@@ -435,7 +310,7 @@
       Cancelar
     </button>
     <app-button type="submit" [loading]="submitting()">
-      Criar produto
+      Salvar alterações
     </app-button>
   </div>
 

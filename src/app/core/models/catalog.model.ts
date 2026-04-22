@@ -42,6 +42,28 @@ export interface UpdateBrandResponse {
   updated_at: string;
 }
 
+export interface UpdateCategoryRequest {
+  parent_id?: string | null;
+  name: string;
+  slug: string;
+  description?: string | null;
+  image_url?: string | null;
+  sort_order: number;
+}
+
+export interface UpdateCategoryResponse {
+  id: string;
+  parent_id: string | null;
+  name: string;
+  slug: string;
+  description: string | null;
+  image_url: string | null;
+  sort_order: number;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CreateCategoryRequest {
   parent_id?: string | null;
   name: string;
@@ -140,6 +162,88 @@ export interface ProductImageOutput {
   alt_text: string | null;
   sort_order: number;
   primary: boolean;
+}
+
+export interface ProductDetail {
+  id: string;
+  category_id: string | null;
+  brand_id: string | null;
+  name: string;
+  slug: string;
+  description: string | null;
+  short_description: string | null;
+  sku: string;
+  price: number;
+  compare_at_price: number | null;
+  cost_price: number | null;
+  quantity: number;
+  low_stock_threshold: number;
+  weight: number | null;
+  width: number | null;
+  height: number | null;
+  depth: number | null;
+  status: ProductStatus;
+  featured: boolean;
+  images: ProductImageOutput[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UpdateProductRequest {
+  category_id?: string | null;
+  brand_id?: string | null;
+  name: string;
+  slug: string;
+  description?: string | null;
+  short_description?: string | null;
+  sku: string;
+  price: number;
+  compare_at_price?: number | null;
+  cost_price?: number | null;
+  low_stock_threshold: number;
+  weight?: number | null;
+  width?: number | null;
+  height?: number | null;
+  depth?: number | null;
+  featured: boolean;
+}
+
+export type StockMovementType = 'IN' | 'OUT' | 'RESERVE' | 'RELEASE' | 'ADJUSTMENT' | 'RETURN';
+
+export interface StockMovementItem {
+  id: string;
+  movement_type: StockMovementType;
+  quantity: number;
+  reference_id: string | null;
+  reference_type: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface StockMovementsResponse {
+  items: StockMovementItem[];
+  page: number;
+  size: number;
+  total_elements: number;
+  total_pages: number;
+}
+
+export interface AdjustStockRequest {
+  delta: number;
+  movementType: StockMovementType;
+  notes?: string | null;
+  referenceId?: string | null;
+  referenceType?: string | null;
+}
+
+export interface AdjustStockResponse {
+  movementId: string;
+  productId: string;
+  movementType: StockMovementType;
+  delta: number;
+  quantityAfter: number;
+  productStatus: string;
+  createdAt: string;
 }
 
 export interface CreateProductResponse {

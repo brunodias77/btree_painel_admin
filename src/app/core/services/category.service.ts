@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CategoryItem, CreateCategoryRequest, CreateCategoryResponse } from '../models/catalog.model';
+import { CategoryItem, CreateCategoryRequest, CreateCategoryResponse, UpdateCategoryRequest, UpdateCategoryResponse } from '../models/catalog.model';
 
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
@@ -28,6 +28,24 @@ export class CategoryService {
       this._loading.set(false);
     }
   }
+  async update(id: string, request: UpdateCategoryRequest): Promise<UpdateCategoryResponse> {
+    this._loading.set(true);
+    this._serverErrors.set([]);
+    try {
+      return await firstValueFrom(
+        this.http.put<UpdateCategoryResponse>(
+          `${environment.apiBaseUrl}/v1/catalog/categories/${id}`,
+          request,
+        ),
+      );
+    } catch (err: unknown) {
+      this._serverErrors.set(extractErrors(err));
+      throw err;
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
   async create(request: CreateCategoryRequest): Promise<CreateCategoryResponse> {
     this._loading.set(true);
     this._serverErrors.set([]);

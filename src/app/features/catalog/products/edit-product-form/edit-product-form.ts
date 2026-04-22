@@ -2,25 +2,24 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  ElementRef,
+  effect,
   inject,
   input,
   output,
   signal,
-  ViewChild,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { BrandItem, CategoryItem, CreateProductRequest } from '../../../../core/models/catalog.model';
+import {
+  BrandItem,
+  CategoryItem,
+  ProductDetail,
+  UpdateProductRequest,
+} from '../../../../core/models/catalog.model';
 import { Button } from '../../../../shared/components/button/button';
-import { ImageUploader } from '../../../../shared/components/image-uploader/image-uploader';
-import { MediaService } from '../../../../core/services/media.service';
 
-const SLUG_PATTERN     = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const SKU_PATTERN      = /^[A-Z0-9_-]+$/;
-const ACCEPTED_TYPES   = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
-const MAX_FILE_BYTES   = 10 * 1024 * 1024;
-const MAX_IMAGES       = 10;
+const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const SKU_PATTERN  = /^[A-Z0-9_-]+$/;
 
 interface SelectCategory { id: string; label: string; depth: number; }
 
@@ -31,34 +30,25 @@ function flattenForSelect(items: CategoryItem[], depth = 0): SelectCategory[] {
   ]);
 }
 
-interface ImageEntry { id: number; url: string | null; alt_text: string; }
-
 @Component({
-  selector: 'app-create-product-form',
+  selector: 'app-edit-product-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, Button, ImageUploader],
-  templateUrl: './create-product-form.html',
+  imports: [ReactiveFormsModule, Button],
+  templateUrl: './edit-product-form.html',
 })
-export class CreateProductForm {
-  private readonly fb           = inject(FormBuilder);
-  private readonly mediaService = inject(MediaService);
-  private _imgId = 0;
+export class EditProductForm {
+  private readonly fb = inject(FormBuilder);
 
-  @ViewChild('multiFileInput') private multiFileInput!: ElementRef<HTMLInputElement>;
+  brands      = input<BrandItem[]>([]);
+  categories  = input<CategoryItem[]>([]);
+  initialData = input<ProductDetail | null>(null);
+  submitting  = input(false);
 
-  brands     = input<BrandItem[]>([]);
-  categories = input<CategoryItem[]>([]);
-  submitting = input(false);
-
-  submitted = output<CreateProductRequest>();
+  submitted = output<UpdateProductRequest>();
   cancelled = output<void>();
 
-  protected readonly wasSubmitted      = signal(false);
-  protected readonly images            = signal<ImageEntry[]>([]);
-  protected readonly multiUploading    = signal(false);
-  protected readonly multiUploadError  = signal<string | null>(null);
-  protected readonly flatCategories    = computed(() => flattenForSelect(this.categories()));
-  protected readonly imagesAtLimit     = computed(() => this.images().length >= MAX_IMAGES);
+  protected readonly wasSubmitted   = signal(false);
+  protected readonly flatCategories = computed(() => flattenForSelect(this.categories()));
 
   protected readonly form = this.fb.group({
     name:                ['', [Validators.required, Validators.maxLength(300)]],
@@ -71,15 +61,40 @@ export class CreateProductForm {
     price:               [null as number | null, [Validators.required, Validators.min(0)]],
     compare_at_price:    [null as number | null, [Validators.min(0)]],
     cost_price:          [null as number | null, [Validators.min(0)]],
-    low_stock_threshold: [5,  [Validators.min(0)]],
+    low_stock_threshold: [0,  [Validators.required, Validators.min(0)]],
     weight:              [null as number | null, [Validators.min(0)]],
     width:               [null as number | null, [Validators.min(0)]],
     height:              [null as number | null, [Validators.min(0)]],
     depth:               [null as number | null, [Validators.min(0)]],
+    featured:            [false],
   });
 
   private readonly _formValue = toSignal(this.form.valueChanges, {
     initialValue: this.form.value,
+  });
+
+  // Pre-populate the form whenever initialData arrives
+  private readonly _patchEffect = effect(() => {
+    const p = this.initialData();
+    if (!p) return;
+    this.form.patchValue({
+      name:                p.name,
+      slug:                p.slug,
+      sku:                 p.sku,
+      category_id:         p.category_id,
+      brand_id:            p.brand_id,
+      short_description:   p.short_description ?? '',
+      description:         p.description ?? '',
+      price:               p.price,
+      compare_at_price:    p.compare_at_price,
+      cost_price:          p.cost_price,
+      low_stock_threshold: p.low_stock_threshold,
+      weight:              p.weight,
+      width:               p.width,
+      height:              p.height,
+      depth:               p.depth,
+      featured:            p.featured,
+    }, { emitEvent: false });
   });
 
   // ── Erros ───────────────────────────────────────────────────────────────────
@@ -123,103 +138,6 @@ export class CreateProductForm {
   protected readonly shortDescError = computed(() =>
     this.fieldError('short_description', ''),
   );
-
-  // ── Imagens ─────────────────────────────────────────────────────────────────
-
-  protected openImagePicker(): void {
-    this.multiFileInput.nativeElement.click();
-  }
-
-  protected async onFilesSelected(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    const files = Array.from(input.files ?? []);
-    input.value = '';
-    if (!files.length) return;
-
-    this.multiUploadError.set(null);
-
-    const valid = files.filter(f => ACCEPTED_TYPES.includes(f.type) && f.size <= MAX_FILE_BYTES);
-    const invalidCount = files.length - valid.length;
-
-    const available = MAX_IMAGES - this.images().length;
-    const toUpload  = valid.slice(0, available);
-    const skipped   = valid.length - toUpload.length;
-
-    if (toUpload.length === 0) {
-      if (this.imagesAtLimit()) {
-        this.multiUploadError.set(`Limite de ${MAX_IMAGES} imagens atingido.`);
-      } else if (invalidCount > 0) {
-        this.multiUploadError.set('Nenhum arquivo válido. Use JPEG, PNG, WebP, GIF ou SVG (máx. 10 MB cada).');
-      }
-      return;
-    }
-
-    this.multiUploading.set(true);
-    try {
-      const results = await Promise.allSettled(toUpload.map(f => this.mediaService.upload(f)));
-
-      const urls = results
-        .filter((r): r is PromiseFulfilledResult<{ url: string }> => r.status === 'fulfilled')
-        .map(r => r.value.url);
-
-      if (urls.length > 0) {
-        this.images.update(list => [
-          ...list,
-          ...urls.map(url => ({ id: this._imgId++, url, alt_text: '' })),
-        ]);
-      }
-
-      const failedCount = results.filter(r => r.status === 'rejected').length + invalidCount + skipped;
-      if (failedCount > 0) {
-        this.multiUploadError.set(
-          `${failedCount} arquivo(s) ignorado(s)` +
-          (skipped > 0 ? ` (limite de ${MAX_IMAGES} imagens atingido)` : ' (formato/tamanho inválido ou falha no upload)') + '.',
-        );
-      }
-    } finally {
-      this.multiUploading.set(false);
-    }
-  }
-
-  protected addImage(): void {
-    if (this.imagesAtLimit()) return;
-    this.images.update(list => [...list, { id: this._imgId++, url: null, alt_text: '' }]);
-  }
-
-  protected removeImage(index: number): void {
-    this.images.update(list => list.filter((_, i) => i !== index));
-  }
-
-  protected moveImageUp(index: number): void {
-    if (index === 0) return;
-    this.images.update(list => {
-      const copy = [...list];
-      [copy[index - 1], copy[index]] = [copy[index], copy[index - 1]];
-      return copy;
-    });
-  }
-
-  protected moveImageDown(index: number): void {
-    this.images.update(list => {
-      if (index >= list.length - 1) return list;
-      const copy = [...list];
-      [copy[index], copy[index + 1]] = [copy[index + 1], copy[index]];
-      return copy;
-    });
-  }
-
-  protected setImageUrl(index: number, url: string | null): void {
-    this.images.update(list =>
-      list.map((img, i) => i === index ? { ...img, url } : img),
-    );
-  }
-
-  protected setImageAltText(index: number, event: Event): void {
-    const alt_text = (event.target as HTMLInputElement).value;
-    this.images.update(list =>
-      list.map((img, i) => i === index ? { ...img, alt_text } : img),
-    );
-  }
 
   // ── Slug / SKU ──────────────────────────────────────────────────────────────
 
@@ -267,13 +185,7 @@ export class CreateProductForm {
       width:               v.width ?? null,
       height:              v.height ?? null,
       depth:               v.depth ?? null,
-      images: this.images()
-        .filter(img => img.url)
-        .map((img, i) => ({
-          url:        img.url!,
-          alt_text:   img.alt_text || null,
-          sort_order: i,
-        })),
+      featured:            v.featured ?? false,
     });
   }
 

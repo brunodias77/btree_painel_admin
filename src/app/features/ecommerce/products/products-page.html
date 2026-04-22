@@ -4,7 +4,13 @@
   <div class="mb-6 flex items-center justify-between">
     <div>
       <h1 class="text-2xl font-bold text-zinc-900">Produtos</h1>
-      <p class="mt-0.5 text-sm text-zinc-500">{{ filtered().length }} produtos encontrados</p>
+      <p class="mt-0.5 text-sm text-zinc-500">
+        @if (store.loadingProducts() && store.products().length === 0) {
+          Carregando…
+        } @else {
+          {{ filtered().length }} produto{{ filtered().length === 1 ? '' : 's' }} encontrado{{ filtered().length === 1 ? '' : 's' }}
+        }
+      </p>
     </div>
     <a
       routerLink="/loja/carrinho"
@@ -31,31 +37,62 @@
       </svg>
       <input
         type="text"
-        placeholder="Buscar produtos, marcas..."
+        placeholder="Buscar produtos…"
         [value]="search()"
         (input)="onSearch($event)"
         class="w-full rounded-xl border border-zinc-200 bg-white py-2.5 pl-10 pr-4 text-sm text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10"
       />
     </div>
 
-    <!-- Category pills -->
-    <div class="flex flex-wrap gap-2">
-      @for (cat of categories(); track cat) {
+    <!-- Category pills from API -->
+    @if (store.categories().length > 0) {
+      <div class="flex flex-wrap gap-2">
         <button
           type="button"
-          (click)="selectCategory(cat)"
-          [class]="(cat === 'Todos' ? !selectedCategory() : selectedCategory() === cat)
+          (click)="selectCategory(null)"
+          [class]="!store.selectedCategoryId()
             ? 'rounded-full bg-zinc-900 px-4 py-1.5 text-xs font-semibold text-white'
-            : 'rounded-full border border-zinc-200 bg-white px-4 py-1.5 text-xs font-semibold text-zinc-600 hover:border-zinc-400 hover:text-zinc-900 transition-colors'"
+            : 'rounded-full border border-zinc-200 bg-white px-4 py-1.5 text-xs font-semibold text-zinc-600 transition-colors hover:border-zinc-400 hover:text-zinc-900'"
         >
-          {{ cat }}
+          Todos
         </button>
-      }
-    </div>
+        @for (cat of store.categories(); track cat.id) {
+          <button
+            type="button"
+            (click)="selectCategory(cat.id)"
+            [class]="store.selectedCategoryId() === cat.id
+              ? 'rounded-full bg-zinc-900 px-4 py-1.5 text-xs font-semibold text-white'
+              : 'rounded-full border border-zinc-200 bg-white px-4 py-1.5 text-xs font-semibold text-zinc-600 transition-colors hover:border-zinc-400 hover:text-zinc-900'"
+          >
+            {{ cat.name }}
+          </button>
+        }
+      </div>
+    }
   </div>
 
-  <!-- Products grid -->
-  @if (filtered().length === 0) {
+  <!-- Loading skeleton (first load) -->
+  @if (store.loadingProducts() && store.products().length === 0) {
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      @for (s of skeletons; track $index) {
+        <div class="flex flex-col overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm">
+          <div class="aspect-square animate-pulse bg-zinc-200"></div>
+          <div class="space-y-2 p-4">
+            <div class="h-3 w-1/3 animate-pulse rounded bg-zinc-200"></div>
+            <div class="h-4 w-3/4 animate-pulse rounded bg-zinc-200"></div>
+            <div class="h-4 w-1/2 animate-pulse rounded bg-zinc-200"></div>
+            <div class="mt-4 flex items-center justify-between">
+              <div class="h-5 w-16 animate-pulse rounded bg-zinc-200"></div>
+              <div class="h-7 w-20 animate-pulse rounded-xl bg-zinc-200"></div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Empty state -->
+  @else if (filtered().length === 0 && !store.loadingProducts()) {
     <div class="flex flex-col items-center justify-center py-24 text-center">
       <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-zinc-100">
         <svg class="h-8 w-8 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,7 +103,10 @@
       <h3 class="text-sm font-semibold text-zinc-900">Nenhum produto encontrado</h3>
       <p class="mt-1 text-sm text-zinc-500">Tente ajustar os filtros de busca.</p>
     </div>
-  } @else {
+  }
+
+  <!-- Products grid -->
+  @else {
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       @for (product of filtered(); track product.id) {
         <div class="group flex flex-col overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm transition-shadow hover:shadow-md">
@@ -88,13 +128,22 @@
               </span>
             }
 
+            <!-- Out of stock overlay -->
+            @if (product.status === 'OUT_OF_STOCK' || product.status === 'PAUSED') {
+              <div class="absolute inset-0 flex items-center justify-center bg-zinc-900/40">
+                <span class="rounded-full bg-zinc-900/80 px-3 py-1 text-xs font-semibold text-white">
+                  {{ product.status === 'PAUSED' ? 'Pausado' : 'Indisponível' }}
+                </span>
+              </div>
+            }
+
             <!-- Favorite button -->
             <button
               type="button"
               (click)="store.toggleFavorite(product.id)"
               [class]="store.isFavorite(product.id)
                 ? 'absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md text-red-500'
-                : 'absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md text-zinc-400 hover:text-red-500 transition-colors'"
+                : 'absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md text-zinc-400 transition-colors hover:text-red-500'"
               title="Favoritar"
             >
               <svg class="h-4 w-4" [attr.fill]="store.isFavorite(product.id) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,30 +155,23 @@
 
           <!-- Info -->
           <div class="flex flex-1 flex-col p-4">
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-zinc-400">
-              {{ product.category }} · {{ product.brand }}
-            </p>
+            <!-- Status badge (DRAFT shown to admin) -->
+            @if (product.status === 'DRAFT') {
+              <span class="mb-1.5 inline-flex w-fit rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700">
+                Rascunho
+              </span>
+            }
+
             <a
               [routerLink]="['/loja/produtos', product.id]"
-              class="mt-1 line-clamp-2 text-sm font-semibold text-zinc-900 hover:text-zinc-600 transition-colors"
+              class="line-clamp-2 text-sm font-semibold text-zinc-900 transition-colors hover:text-zinc-600"
             >
               {{ product.name }}
             </a>
 
-            <!-- Stars -->
-            <div class="mt-2 flex items-center gap-1">
-              @for (star of stars; track star) {
-                <svg
-                  class="h-3 w-3"
-                  [class]="star <= Math.round(product.rating) ? 'text-amber-400' : 'text-zinc-200'"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-              }
-              <span class="ml-1 text-[10px] text-zinc-400">({{ product.reviewCount }})</span>
-            </div>
+            @if (product.description) {
+              <p class="mt-1 line-clamp-2 text-xs text-zinc-400">{{ product.description }}</p>
+            }
 
             <!-- Price + CTA -->
             <div class="mt-auto flex items-end justify-between pt-3">
@@ -142,7 +184,8 @@
               <button
                 type="button"
                 (click)="store.addToCart(product)"
-                class="rounded-xl bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-zinc-700 active:scale-95"
+                [disabled]="product.stock === 0"
+                class="rounded-xl bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-zinc-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Adicionar
               </button>
@@ -151,5 +194,28 @@
         </div>
       }
     </div>
+
+    <!-- Load more -->
+    @if (store.hasMore()) {
+      <div class="mt-8 flex justify-center">
+        <button
+          type="button"
+          (click)="store.loadMore()"
+          [disabled]="store.loadingProducts()"
+          class="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-6 py-2.5 text-sm font-semibold text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 disabled:opacity-50"
+        >
+          @if (store.loadingProducts()) {
+            <svg class="h-4 w-4 animate-spin text-zinc-400" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            Carregando…
+          } @else {
+            Carregar mais
+          }
+        </button>
+      </div>
+    }
   }
+
 </div>

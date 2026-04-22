@@ -1,0 +1,291 @@
+<div class="p-6 lg:p-8">
+  <div class="mx-auto max-w-5xl space-y-6">
+
+    <!-- Cabeçalho de navegação -->
+    <div class="flex items-center gap-3">
+      <a
+        routerLink="/catalog/products"
+        class="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900 transition-colors"
+      >
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Produtos
+      </a>
+    </div>
+
+    <!-- Loading skeleton -->
+    @if (loading() && !product()) {
+      <div class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm space-y-4">
+        <div class="h-6 w-64 animate-pulse rounded bg-zinc-100"></div>
+        <div class="h-4 w-40 animate-pulse rounded bg-zinc-100"></div>
+        <div class="grid grid-cols-2 gap-4 pt-2">
+          <div class="h-48 animate-pulse rounded-xl bg-zinc-100"></div>
+          <div class="space-y-3">
+            <div class="h-4 w-full animate-pulse rounded bg-zinc-100"></div>
+            <div class="h-4 w-3/4 animate-pulse rounded bg-zinc-100"></div>
+            <div class="h-4 w-1/2 animate-pulse rounded bg-zinc-100"></div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Erros -->
+    @if (serverErrors().length > 0) {
+      <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+        <p class="text-sm font-medium text-red-700 mb-1">Não foi possível carregar o produto:</p>
+        <ul class="list-disc list-inside space-y-0.5">
+          @for (error of serverErrors(); track error) {
+            <li class="text-sm text-red-600">{{ error }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    @if (product(); as p) {
+
+      <!-- Cabeçalho do produto -->
+      <div class="flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-xl font-semibold text-zinc-900">{{ p.name }}</h1>
+            @if (p.featured) {
+              <span class="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700">
+                Destaque
+              </span>
+            }
+            <span
+              class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium"
+              [class]="statusClasses(p.status)"
+            >
+              {{ statusLabel(p.status) }}
+            </span>
+          </div>
+          <p class="mt-1 text-sm text-zinc-500">
+            <span class="font-mono">{{ p.slug }}</span>
+            <span class="mx-2 text-zinc-300">·</span>
+            <span class="rounded-md bg-zinc-100 px-1.5 py-0.5 font-mono text-xs text-zinc-600">{{ p.sku }}</span>
+          </p>
+        </div>
+        <a
+          [routerLink]="['/catalog/products', p.id, 'edit']"
+          class="shrink-0 inline-flex items-center gap-2 rounded-lg border border-zinc-300 px-3 py-2
+                 text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:border-zinc-400 transition-colors"
+        >
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+          Editar
+        </a>
+      </div>
+
+      <!-- Galeria + Informações principais -->
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+        <!-- Galeria de imagens -->
+        <div class="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+          @if (p.images.length > 0) {
+            <!-- Imagem principal -->
+            <div class="mb-3 overflow-hidden rounded-xl bg-zinc-50">
+              <img
+                [src]="activeImage()!.url"
+                [alt]="activeImage()!.alt_text || p.name"
+                class="h-72 w-full object-contain"
+              />
+            </div>
+            <!-- Miniaturas -->
+            @if (p.images.length > 1) {
+              <div class="flex gap-2 overflow-x-auto pb-1">
+                @for (img of p.images; track img.id; let i = $index) {
+                  <button
+                    type="button"
+                    (click)="setActiveImage(i)"
+                    class="shrink-0 overflow-hidden rounded-lg ring-2 transition-all"
+                    [class]="i === activeImageIndex()
+                      ? 'ring-zinc-900'
+                      : 'ring-transparent hover:ring-zinc-300'"
+                  >
+                    <img
+                      [src]="img.url"
+                      [alt]="img.alt_text || p.name"
+                      class="h-14 w-14 object-cover"
+                    />
+                  </button>
+                }
+              </div>
+            }
+            <!-- Contador -->
+            <p class="mt-2 text-xs text-zinc-400">
+              {{ p.images.length }} {{ p.images.length === 1 ? 'imagem' : 'imagens' }}
+            </p>
+          } @else {
+            <div class="flex h-72 flex-col items-center justify-center rounded-xl bg-zinc-50 text-zinc-300">
+              <svg class="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              <p class="mt-2 text-sm">Sem imagens</p>
+            </div>
+          }
+        </div>
+
+        <!-- Preços + Estoque -->
+        <div class="space-y-4">
+
+          <!-- Preços -->
+          <div class="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-zinc-500 mb-3">Preços</h2>
+            <dl class="space-y-2.5">
+              <div class="flex items-center justify-between">
+                <dt class="text-sm text-zinc-500">Preço de venda</dt>
+                <dd class="text-sm font-semibold text-zinc-900">{{ formatPrice(p.price) }}</dd>
+              </div>
+              @if (p.compare_at_price) {
+                <div class="flex items-center justify-between">
+                  <dt class="text-sm text-zinc-500">Preço <span class="italic">"de"</span></dt>
+                  <dd class="text-sm text-zinc-400 line-through">{{ formatPrice(p.compare_at_price) }}</dd>
+                </div>
+              }
+              @if (p.cost_price) {
+                <div class="flex items-center justify-between border-t border-zinc-100 pt-2.5">
+                  <dt class="text-sm text-zinc-500">Preço de custo</dt>
+                  <dd class="text-sm text-zinc-600">{{ formatPrice(p.cost_price) }}</dd>
+                </div>
+              }
+            </dl>
+          </div>
+
+          <!-- Estoque -->
+          <div class="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+              <h2 class="text-xs font-semibold uppercase tracking-wide text-zinc-500">Estoque</h2>
+              <button
+                type="button"
+                (click)="showAdjustModal.set(true)"
+                class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-2.5 py-1 text-xs
+                       font-medium text-zinc-700 hover:bg-zinc-50 hover:border-zinc-400 transition-colors"
+              >
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Ajustar estoque
+              </button>
+            </div>
+            <dl class="space-y-2.5">
+              <div class="flex items-center justify-between">
+                <dt class="text-sm text-zinc-500">Quantidade</dt>
+                <dd class="text-sm font-semibold"
+                  [class]="p.quantity === 0 ? 'text-red-600' : p.quantity <= p.low_stock_threshold ? 'text-orange-600' : 'text-zinc-900'">
+                  {{ p.quantity }}
+                  @if (p.quantity === 0) { <span class="ml-1 text-xs font-normal">(esgotado)</span> }
+                  @else if (p.quantity <= p.low_stock_threshold) { <span class="ml-1 text-xs font-normal">(baixo)</span> }
+                </dd>
+              </div>
+              <div class="flex items-center justify-between">
+                <dt class="text-sm text-zinc-500">Alerta de estoque baixo</dt>
+                <dd class="text-sm text-zinc-600">{{ p.low_stock_threshold }}</dd>
+              </div>
+            </dl>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Descrições -->
+      @if (p.short_description || p.description) {
+        <div class="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm space-y-4">
+          <h2 class="text-xs font-semibold uppercase tracking-wide text-zinc-500">Descrições</h2>
+          @if (p.short_description) {
+            <div>
+              <p class="text-xs font-medium text-zinc-500 mb-1">Descrição curta</p>
+              <p class="text-sm text-zinc-700">{{ p.short_description }}</p>
+            </div>
+          }
+          @if (p.description) {
+            <div [class]="p.short_description ? 'border-t border-zinc-100 pt-4' : ''">
+              <p class="text-xs font-medium text-zinc-500 mb-1">Descrição completa</p>
+              <p class="text-sm text-zinc-700 whitespace-pre-line">{{ p.description }}</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Movimentações de estoque -->
+      <app-stock-movements-section
+        [productId]="p.id"
+        [refreshTrigger]="movementsKey()"
+      />
+
+      <!-- Dimensões + Metadados -->
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+        <!-- Dimensões -->
+        <div class="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+          <h2 class="text-xs font-semibold uppercase tracking-wide text-zinc-500 mb-3">Dimensões</h2>
+          <dl class="grid grid-cols-2 gap-2.5">
+            <div>
+              <dt class="text-xs text-zinc-400">Peso</dt>
+              <dd class="text-sm font-medium text-zinc-700">{{ formatDimension(p.weight, 'kg') }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-zinc-400">Largura</dt>
+              <dd class="text-sm font-medium text-zinc-700">{{ formatDimension(p.width, 'cm') }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-zinc-400">Altura</dt>
+              <dd class="text-sm font-medium text-zinc-700">{{ formatDimension(p.height, 'cm') }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-zinc-400">Profundidade</dt>
+              <dd class="text-sm font-medium text-zinc-700">{{ formatDimension(p.depth, 'cm') }}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- Metadados -->
+        <div class="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+          <h2 class="text-xs font-semibold uppercase tracking-wide text-zinc-500 mb-3">Informações</h2>
+          <dl class="space-y-2.5">
+            <div>
+              <dt class="text-xs text-zinc-400">ID</dt>
+              <dd class="font-mono text-xs text-zinc-600 break-all">{{ p.id }}</dd>
+            </div>
+            @if (p.category_id) {
+              <div>
+                <dt class="text-xs text-zinc-400">Categoria</dt>
+                <dd class="font-mono text-xs text-zinc-600 break-all">{{ p.category_id }}</dd>
+              </div>
+            }
+            @if (p.brand_id) {
+              <div>
+                <dt class="text-xs text-zinc-400">Marca</dt>
+                <dd class="font-mono text-xs text-zinc-600 break-all">{{ p.brand_id }}</dd>
+              </div>
+            }
+            <div class="border-t border-zinc-100 pt-2.5">
+              <dt class="text-xs text-zinc-400">Criado em</dt>
+              <dd class="text-xs text-zinc-600">{{ formatDate(p.created_at) }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-zinc-400">Atualizado em</dt>
+              <dd class="text-xs text-zinc-600">{{ formatDate(p.updated_at) }}</dd>
+            </div>
+          </dl>
+        </div>
+
+      </div>
+
+    }
+
+  </div>
+</div>
+
+@if (showAdjustModal() && product()) {
+  <app-stock-adjustment-modal
+    [product]="product()!"
+    (closed)="showAdjustModal.set(false)"
+    (adjusted)="onStockAdjusted($event)"
+  />
+}

@@ -151,13 +151,13 @@
 
                   <!-- Ações -->
                   <td class="px-6 py-3 text-right">
-                    <button
-                      type="button"
+                    <a
+                      [routerLink]="['/catalog/products', product.id]"
                       class="rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-500 transition-colors
                              hover:bg-zinc-100 hover:text-zinc-900"
                     >
-                      Editar
-                    </button>
+                      Ver detalhes
+                    </a>
                   </td>
 
                 </tr>

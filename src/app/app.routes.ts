@@ -74,6 +74,11 @@ export const routes: Routes = [
           import('./features/catalog/categories/create-category-page').then(m => m.CreateCategoryPage),
       },
       {
+        path: 'catalog/categories/:id/edit',
+        loadComponent: () =>
+          import('./features/catalog/categories/edit-category-page').then(m => m.EditCategoryPage),
+      },
+      {
         path: 'catalog/products',
         loadComponent: () =>
           import('./features/catalog/products/product-list-page').then(m => m.ProductListPage),
@@ -82,6 +87,16 @@ export const routes: Routes = [
         path: 'catalog/products/create',
         loadComponent: () =>
           import('./features/catalog/products/create-product-page').then(m => m.CreateProductPage),
+      },
+      {
+        path: 'catalog/products/:id/edit',
+        loadComponent: () =>
+          import('./features/catalog/products/edit-product-page').then(m => m.EditProductPage),
+      },
+      {
+        path: 'catalog/products/:id',
+        loadComponent: () =>
+          import('./features/catalog/products/product-detail-page').then(m => m.ProductDetailPage),
       },
       {
         path: 'catalog/brands',

@@ -13,6 +13,7 @@ export interface Product {
   reviewCount: number;
   stock: number;
   tags: string[];
+  status?: string;
 }
 
 export interface CartItem {
