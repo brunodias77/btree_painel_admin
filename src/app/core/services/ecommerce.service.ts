@@ -102,7 +102,7 @@ export class EcommerceService {
       brand: '',
       rating: 0,
       reviewCount: 0,
-      stock: item.status === 'OUT_OF_STOCK' ? 0 : 1,
+      stock: item.status === 'OUT_OF_STOCK' ? 0 : Number.MAX_SAFE_INTEGER,
       tags: [],
       status: item.status,
     };

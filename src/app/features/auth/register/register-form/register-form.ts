@@ -124,7 +124,7 @@ export class RegisterForm {
 
     try {
       await this.authService.register({ username: username!, email: email!, password: password! });
-      this.router.navigate(['/login'], { queryParams: { registered: '1' } });
+      this.router.navigate(['/verify-email']);
     } catch {
       // erros gerenciados pelo authService.serverErrors signal
     }
